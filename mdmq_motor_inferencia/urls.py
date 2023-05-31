@@ -17,6 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from motorInferencia.views import InferirConsulta
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('motor-inferencia/', InferirConsulta.as_view(), name="motor_inferencia"),
 ]

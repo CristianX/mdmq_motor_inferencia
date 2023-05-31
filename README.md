@@ -20,3 +20,6 @@
 <!-- Obteniendo un id de la migración Ejem. 001 -->
 2. python manage.py sqlmigrate motorInferencia 001
 3. python manage.py migrate
+
+## Instalar pyknow
+- pip install git+https://github.com/buguroo/pyknow.git
