@@ -14,7 +14,7 @@
 
 - Instalar la dependencia (pip install Pillow)
 
-## 3. Para la migración de modelos personalizados (Existentes en app)
+## 4. Para la migración de modelos personalizados (Existentes en app)
 
 1. python manage.py makemigrations
 <!-- Obteniendo un id de la migración Ejem. 001 -->
