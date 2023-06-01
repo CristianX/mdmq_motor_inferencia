@@ -1,5 +1,9 @@
 # Motor de inferencia con DJango
 
+## 0. Instalación Django
+
+- pip install Django
+
 ## 1. Para la ejecución incial del proyecto
 
 - python manage.py migrate
@@ -7,6 +11,9 @@
 
 ## 2. Uso de Pylint
 
+- pip install djangorestframework (Añadir en settings.py/ Installed APPS 'rest_framework')
+- pip install markdown
+- pip install django-filter
 - pip install pylint-django
 - Usar pylint djando con vscode files/preferences/extensions/python/ buscar pylint path y colocar ¨pylint_django¨
 
@@ -21,8 +28,8 @@
 2. python manage.py sqlmigrate motorInferencia 001
 3. python manage.py migrate
 
-## Instalar pyknow
+## Instalar experta
 
-- pip install git+https://github.com/buguroo/pyknow.git
+- pip install experta
 
 (Versión compatible con python 3.8)
