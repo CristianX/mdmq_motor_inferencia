@@ -10,16 +10,22 @@ def motor_inferencia(consulta):
     class InferenceEngine(KnowledgeEngine):
         def __init__(self):
             super().__init__()
-            self.resultado = []
+            self.resultado = None
 
-        @Rule(Command(action="turn_on_light"))
+        @Rule(Command(action="compra_predio"))
         def rule_turn_on_light(self):
-            self.resultado.append("1. Prendiendo la luz")
-            self.resultado.append("2. Apagando las luces de la sala")
+            self.resultado = {
+                "1": "Enciendiendo la luz",
+                "2": "Apagando la luz de la sal",
+            }
 
-        @Rule(Command(action="play_music"))
+        @Rule(Command(action="licencia_metropolitana_urbanistica"))
         def rule_play_music(self):
-            self.resultado.append("Reproduciendo música")
+            self.resultado = {
+                "1": "Entrar al portal PAM",
+                "2": "Dirigirse al apartado Trámites Frecuentes",
+                "3": "Ingresar al apartado LMU40",
+            }
 
     # Creando instancia del motor de inferencia
     engine = InferenceEngine()
@@ -29,14 +35,21 @@ def motor_inferencia(consulta):
 
     # Definiendo palabras clave y acciones asociadas
     keywords = [
-        (["Prende la luz", "enciende la luz", "activa la luz"], "turn_on_light"),
         (
             [
-                "Reproduce musica",
-                "reproduce una cancion",
-                "encuentra cancion a reproducir",
+                "Como puedo cambiar el nombre de un predio",
+                "registrar predio",
+                "compre un predio",
             ],
-            "play_music",
+            "compra_predio",
+        ),
+        (
+            [
+                "Como obtener una licencia metropolitana urbanística",
+                "sacar licencia metropolitana urbanistica",
+                "que hago para sacar una licencia metropolitana",
+            ],
+            "licencia_metropolitana_urbanistica",
         ),
     ]
 

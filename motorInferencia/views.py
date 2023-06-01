@@ -10,9 +10,13 @@ class InferirConsulta(APIView):
     def post(self, request, *args, **kwargs):
         consulta = request.data
 
-        response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
-        # print(response_motor_inferencia)
-
-        return Response({
-            "data": response_motor_inferencia
-        })
+        try:
+            response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
+            return Response(
+                {"data": response_motor_inferencia}, status=status.HTTP_200_OK
+            )
+        except:
+            return Response(
+                "La consulta a enviar debe contener el campo 'mensaje'",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
