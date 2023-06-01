@@ -14,7 +14,8 @@ def motor_inferencia(consulta):
 
         @Rule(Command(action="turn_on_light"))
         def rule_turn_on_light(self):
-            self.resultado.append("Prendiendo la luz")
+            self.resultado.append("1. Prendiendo la luz")
+            self.resultado.append("2. Apagando las luces de la sala")
 
         @Rule(Command(action="play_music"))
         def rule_play_music(self):
@@ -54,11 +55,6 @@ def motor_inferencia(consulta):
         engine.reset()
         engine.declare(Command(action=matched_action))
         engine.run()
-        # for fact in engine.facts:
-        #     print(fact.__class__)
-        #     if isinstance(fact, Fact) and hasattr(fact, "result"):
-        #         print(fact.result)
-        #         return fact.result
 
     return (
         engine.resultado
