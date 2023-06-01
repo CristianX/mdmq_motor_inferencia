@@ -2,12 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-from experta import *
-import difflib
-from utils.motor_inferencia import motor_inferencia
-
-class Command(Fact):
-    pass
+from .utils.motor_inferencia import motor_inferencia
 
 
 class InferirConsulta(APIView):
@@ -15,4 +10,9 @@ class InferirConsulta(APIView):
     def post(self, request, *args, **kwargs):
         consulta = request.data
 
-        motor_inferencia(consulta=consulta["mensaje"])
+        response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
+        print(response_motor_inferencia)
+
+        return Response({
+            "data": response_motor_inferencia
+        })

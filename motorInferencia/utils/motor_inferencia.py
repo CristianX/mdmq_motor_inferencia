@@ -13,10 +13,11 @@ def motor_inferencia(consulta):
         @Rule(Command(action="turn_on_light"))
         def rule_turn_on_light(self):
             print("Prendiendo las luces")
+            return "Prendiendo las luces"
 
         @Rule(Command(action="play_music"))
         def rule_play_music(self):
-            print("Reproduciendo música")
+            return "Reproduciendo música"
 
 
     # Creando instancia del motor de inferencia
@@ -54,6 +55,4 @@ def motor_inferencia(consulta):
         engine.declare(Command(action=matched_action))
         engine.run()
     else:
-        print(
-            "No se encontró ninguna acción correspondiente o la similitud es menor al 80%"
-        )
+        return "No se encontró ninguna acción correspondiente o la similitud es menor al 80%"
