@@ -13,14 +13,18 @@ def motor_inferencia(consulta):
             self.resultado = None
 
         @Rule(Command(action="compra_predio"))
-        def rule_turn_on_light(self):
+        def rule_compra_predio(self):
             self.resultado = {
-                "1": "Enciendiendo la luz",
-                "2": "Apagando la luz de la sal",
+                "1": {
+                    "descripcion": "Entrar al portal PAM",
+                    "link": "https://pam.quito.gob.ec/PAM/Inicio.aspx",
+                },
+                "2": "Dirigirse al apartado Trámites Frecuentes",
+                "3": "Seleccionar el apartado 'predios'",
             }
 
         @Rule(Command(action="licencia_metropolitana_urbanistica"))
-        def rule_play_music(self):
+        def rule_licencia_metropolitana_urbanistica(self):
             self.resultado = {
                 "1": "Entrar al portal PAM",
                 "2": "Dirigirse al apartado Trámites Frecuentes",
@@ -38,6 +42,7 @@ def motor_inferencia(consulta):
         (
             [
                 "Como puedo cambiar el nombre de un predio",
+                "Como registro un predio",
                 "registrar predio",
                 "compre un predio",
             ],
@@ -64,7 +69,7 @@ def motor_inferencia(consulta):
                 matched_action = action
 
     # Estableciendo hecho y realizando inferencia
-    if matched_action and max_similarity >= 0.8:
+    if matched_action and max_similarity >= 0.7:
         engine.reset()
         engine.declare(Command(action=matched_action))
         engine.run()

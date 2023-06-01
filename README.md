@@ -8,6 +8,8 @@
 
 - python manage.py migrate
 - python manage.py runserver
+  (para ejecutar en la red local)
+- python manage.py runserver 0.0.0.0:8000 y registrar la ip o domino en settings.py/ALLOWED_HOSTS
 
 ## 2. Uso de Pylint
 
