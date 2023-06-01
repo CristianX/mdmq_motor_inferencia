@@ -12,12 +12,11 @@ def motor_inferencia(consulta):
     class InferenceEngine(KnowledgeEngine):
         @Rule(Command(action="turn_on_light"))
         def rule_turn_on_light(self):
-            print("Prendiendo las luces")
-            return "Prendiendo las luces"
+            self.declare(Fact(result="Prendiendo las luces"))
 
         @Rule(Command(action="play_music"))
         def rule_play_music(self):
-            return "Reproduciendo música"
+            self.declare(Fact(result="Reproduciendo música"))
 
 
     # Creando instancia del motor de inferencia
@@ -54,5 +53,9 @@ def motor_inferencia(consulta):
         engine.reset()
         engine.declare(Command(action=matched_action))
         engine.run()
-    else:
-        return "No se encontró ninguna acción correspondiente o la similitud es menor al 80%"
+        for fact in engine.facts:
+            print(isinstance(fact, Fact) and hasattr(fact, "result"))
+            if isinstance(fact, Fact) and hasattr(fact, "result"):
+                return fact.result
+            
+    return "No se encontró ninguna acción correspondiente o la similitud es menor al 80%"

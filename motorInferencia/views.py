@@ -11,7 +11,7 @@ class InferirConsulta(APIView):
         consulta = request.data
 
         response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
-        print(response_motor_inferencia)
+        # print(response_motor_inferencia)
 
         return Response({
             "data": response_motor_inferencia

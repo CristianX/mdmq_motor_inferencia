@@ -22,4 +22,7 @@
 3. python manage.py migrate
 
 ## Instalar pyknow
+
 - pip install git+https://github.com/buguroo/pyknow.git
+
+(Versión compatible con python 3.8)
