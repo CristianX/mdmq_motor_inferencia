@@ -45,6 +45,8 @@ def motor_inferencia(consulta):
                 "Como registro un predio",
                 "registrar predio",
                 "compre un predio",
+                "tengo un predio, como puedo saber sobre este",
+                "como puedo saber sobre el predio",
             ],
             "compra_predio",
         ),
@@ -52,7 +54,7 @@ def motor_inferencia(consulta):
             [
                 "Como obtener una licencia metropolitana urbanística",
                 "sacar licencia metropolitana urbanistica",
-                "que hago para sacar una licencia metropolitana",
+                "que hago para sacar una licencia metropolitana urbanística",
             ],
             "licencia_metropolitana_urbanistica",
         ),
@@ -69,7 +71,7 @@ def motor_inferencia(consulta):
                 matched_action = action
 
     # Estableciendo hecho y realizando inferencia
-    if matched_action and max_similarity >= 0.7:
+    if matched_action and max_similarity >= 0.75:
         engine.reset()
         engine.declare(Command(action=matched_action))
         engine.run()
@@ -77,5 +79,5 @@ def motor_inferencia(consulta):
     return (
         engine.resultado
         if engine.resultado
-        else "No se encontró ninguna acción correspondiente o la similitud es menor al 80%"
+        else "Lo siento, no encontré una respuesta a tu pregunta pero mi equipo me ayudará a aprender para solucionar tus inquietudes."
     )

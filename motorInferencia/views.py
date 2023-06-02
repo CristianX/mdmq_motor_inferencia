@@ -13,7 +13,10 @@ class InferirConsulta(APIView):
         try:
             response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
             return Response(
-                {"data": response_motor_inferencia}, status=status.HTTP_200_OK
+                {
+                    "data": response_motor_inferencia,
+                },
+                status=status.HTTP_200_OK,
             )
         except:
             return Response(
