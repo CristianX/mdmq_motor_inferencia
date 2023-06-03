@@ -33,7 +33,7 @@ class Rule(APIView):
 
         try:
             rule = RuleModel.objects.create(
-                rule=body.get("rule"),
+                rule=body.get("rule") or None,
                 usuario_creacion=body.get("usuario_creacion"),
                 dispositivo_creacion=body.get("dispositivo_creacion"),
                 usuario_modificacion=body.get("usuario_modificacion"),
@@ -45,9 +45,9 @@ class Rule(APIView):
                 status=status.HTTP_201_CREATED,
             )
 
-        except:
+        except Exception as e:
             return Response(
-                {"message": "Error en la creación de la nueva regla"},
+                {"message": f"Error en la creación de la nueva regla {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -71,11 +71,8 @@ class Keyword(APIView):
             )
 
         except Exception as e:
-            print(f"exception: {e}")
             return Response(
-                {"message": "Error en la creación de la nueva keyword"},
+                {"message": f"Error en la creación de la nueva keyword {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-
-# TODO: analizar el cambio de Djongo a Mongoengine
