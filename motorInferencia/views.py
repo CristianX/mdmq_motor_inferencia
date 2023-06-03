@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from .utils.motor_inferencia import motor_inferencia
 from motorInferencia.models import RuleModel, KeywordsModel
+from bson import ObjectId
 
 
 class InferirConsulta(APIView):
@@ -58,7 +59,7 @@ class Keyword(APIView):
         try:
             keyword = KeywordsModel.objects.create(
                 keyword=body.get("keyword"),
-                rule=body.get("rule"),
+                rule=RuleModel.objects.get(_id=ObjectId(body.get("rule"))),
                 usuario_creacion=body.get("usuario_creacion"),
                 dispositivo_creacion=body.get("dispositivo_creacion"),
                 usuario_modificacion=body.get("usuario_modificacion"),
@@ -75,5 +76,6 @@ class Keyword(APIView):
                 {"message": "Error en la creación de la nueva keyword"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
 
 # TODO: analizar el cambio de Djongo a Mongoengine

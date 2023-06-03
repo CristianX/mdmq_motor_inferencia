@@ -5,6 +5,7 @@ from djongo import models
 
 
 class RuleModel(models.Model):
+    _id = models.ObjectIdField(primary_key=True, editable=False)
     rule = models.CharField(max_length=500, blank=False, null=False, unique=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     usuario_creacion = models.CharField(max_length=150, blank=False, null=False)
@@ -15,8 +16,9 @@ class RuleModel(models.Model):
 
 
 class KeywordsModel(models.Model):
+    _id = models.ObjectIdField(primary_key=True, editable=False)
     keyword = models.CharField(max_length=500, blank=False, null=False)
-    rule = models.ObjectIdField()
+    rule = models.ForeignKey(RuleModel, on_delete=models.CASCADE)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     usuario_creacion = models.CharField(max_length=150, blank=False, null=False)
     dispositivo_creacion = models.CharField(max_length=150, blank=False, null=False)
