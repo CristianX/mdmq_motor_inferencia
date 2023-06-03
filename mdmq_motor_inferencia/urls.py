@@ -17,11 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from motorInferencia.views import InferirConsulta
-from motorInferencia.views import Rule
+from motorInferencia.views import InferirConsulta, Rule, Keyword
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("motor-inferencia/", InferirConsulta.as_view(), name="motor_inferencia"),
-    path("action/", Rule.as_view(), name="rule"),
+    path("rule/", Rule.as_view(), name="rule"),
+    path("keyword/", Keyword.as_view(), name="keyword"),
 ]
