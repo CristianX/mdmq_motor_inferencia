@@ -11,13 +11,16 @@
   (para ejecutar en la red local)
 - python manage.py runserver 0.0.0.0:8000 y registrar la ip o domino en settings.py/ALLOWED_HOSTS
 
-## 2. Uso de Pylint
+## 2. Dependencias
 
 - pip install djangorestframework (Añadir en settings.py/ Installed APPS 'rest_framework')
 - pip install markdown
 - pip install django-filter
 - pip install pylint-django
-- Usar pylint djando con vscode files/preferences/extensions/python/ buscar pylint path y colocar ¨pylint_django¨
+- Usar pylint django con vscode files/preferences/extensions/python/ buscar pylint path y colocar ¨pylint_django¨
+- pip install python-decouple (Para desacoplamiento, uso de variables de entorno)
+- pip install djongo
+- pip install pymongo==3.12.1
 
 ## 3. Uso de imagenes en migraciones
 

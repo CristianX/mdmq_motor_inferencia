@@ -10,6 +10,8 @@ class InferirConsulta(APIView):
     def post(self, request, *args, **kwargs):
         consulta = request.data
 
+        print(consulta["mensaje"])
+
         try:
             response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
             return Response(

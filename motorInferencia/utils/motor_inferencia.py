@@ -1,5 +1,6 @@
 from experta import *
 import difflib
+from decouple import config
 
 
 class Command(Fact):
@@ -71,7 +72,7 @@ def motor_inferencia(consulta):
                 matched_action = action
 
     # Estableciendo hecho y realizando inferencia
-    if matched_action and max_similarity >= 0.75:
+    if matched_action and max_similarity >= float(config("PORCENTAJE_TOLERANCIA")):
         engine.reset()
         engine.declare(Command(action=matched_action))
         engine.run()
