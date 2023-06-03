@@ -18,8 +18,10 @@ from django.contrib import admin
 from django.urls import path
 
 from motorInferencia.views import InferirConsulta
+from motorInferencia.views import Rule
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('motor-inferencia/', InferirConsulta.as_view(), name="motor_inferencia"),
+    path("admin/", admin.site.urls),
+    path("motor-inferencia/", InferirConsulta.as_view(), name="motor_inferencia"),
+    path("action/", Rule.as_view(), name="rule"),
 ]
