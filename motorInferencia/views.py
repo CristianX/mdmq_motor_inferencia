@@ -63,13 +63,29 @@ class Keyword(APIView):
                 usuario_modificacion=body.get("usuario_modificacion"),
                 dispositivo_modificacion=body.get("dispositivo_modificacion"),
             )
-            return Response(
-                {"message": "Keyword creada exitosamente"},
-                status=status.HTTP_201_CREATED,
-            )
+
+            keyword_records = KeywordsModel.objects.all()
+            # return Response(
+            #     {"message": "Keyword creada exitosamente", "data": keyword_data},
+            #     status=status.HTTP_201_CREATED,
+            # )
+            keywords_data = []
+
+            for keyword_record in keyword_records:
+                keyword_record_dict = keyword_record.__dict__
+                keyword_record_dict["_id"] = str(keyword_record_dict["_id"])
+                keywords_data.append(keyword_record_dict)
+
+            return Response(keywords_data)
 
         except Exception as e:
             return Response(
                 {"message": f"Error en la creación de la nueva keyword {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    #     @api_view(['GET'])
+    # def get_all_records(request):
+    #     records = MyModel.objects.all()
+    #     serializer = MyModelSerializer(records, many=True)
+    #     return Response(serializer.data)
