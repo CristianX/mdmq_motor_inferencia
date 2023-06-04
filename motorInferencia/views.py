@@ -8,7 +8,6 @@ from bson import ObjectId
 
 
 class InferirConsulta(APIView):
-    # Create your views here.
     def post(self, request, *args, **kwargs):
         consulta = request.data
 
@@ -39,7 +38,6 @@ class Rule(APIView):
                 usuario_modificacion=body.get("usuario_modificacion"),
                 dispositivo_modificacion=body.get("dispositivo_modificacion"),
             )
-            print(f"exeption: {rule}")
             return Response(
                 {"message": "Regla creada exitosamente"},
                 status=status.HTTP_201_CREATED,
@@ -75,4 +73,3 @@ class Keyword(APIView):
                 {"message": f"Error en la creación de la nueva keyword {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
