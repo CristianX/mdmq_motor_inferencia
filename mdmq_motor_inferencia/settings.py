@@ -126,15 +126,3 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# Configuración de Celery
-CELERY_BROKER_URL = "kafka://172.22.4.106:9092"
-CELERY_RESULT_BACKEND = config("CLIENT_HOST")
-
-# Configuración adicional de Kafka
-CELERY_KAFKA_TOPIC = "mytopic"  # Nombre del tema de Kafka
-CELERY_KAFKA_GROUP_ID = "mygroup"  # ID del grupo de Kafka
-CELERY_KAFKA_CONFIG = {
-    "bootstrap_servers": "172.22.4.106:9092",  # Dirección de los servidores de Kafka
-    "group_id": CELERY_KAFKA_GROUP_ID,
-}

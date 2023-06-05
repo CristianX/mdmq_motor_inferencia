@@ -21,8 +21,6 @@
 - pip install python-decouple (Para desacoplamiento, uso de variables de entorno)
 - pip install djongo
 - pip install pymongo==3.12.1
-- pip install kafka-python
-- pip install celery[kafka] celery[mongodb]
 
 ## 3. Uso de imagenes en migraciones
 
