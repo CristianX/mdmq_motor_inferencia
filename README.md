@@ -21,6 +21,7 @@
 - pip install python-decouple (Para desacoplamiento, uso de variables de entorno)
 - pip install djongo
 - pip install pymongo==3.12.1
+- pip install django-cors-headers
 
 ## 3. Uso de imagenes en migraciones
 

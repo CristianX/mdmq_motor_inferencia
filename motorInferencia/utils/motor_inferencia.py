@@ -27,7 +27,10 @@ def motor_inferencia(consulta):
         @Rule(Command(action="licencia_metropolitana_urbanistica"))
         def rule_licencia_metropolitana_urbanistica(self):
             self.resultado = {
-                "1": "Entrar al portal PAM",
+                "1": {
+                    "descripcion": "Entrar al portal PAM",
+                    "link": "https://pam.quito.gob.ec/PAM/Inicio.aspx",
+                },
                 "2": "Dirigirse al apartado Trámites Frecuentes",
                 "3": "Ingresar al apartado LMU40",
             }
@@ -80,5 +83,5 @@ def motor_inferencia(consulta):
     return (
         engine.resultado
         if engine.resultado
-        else "Lo siento, no encontré una respuesta a tu pregunta pero mi equipo me ayudará a aprender para solucionar tus inquietudes."
+        else "No se encontró respuesta para su solicitud, dirigirse a la url https://pam.quito.gob.ec/PAM/Inicio.aspx, al apartado de la parte inferior (Contactos)"
     )

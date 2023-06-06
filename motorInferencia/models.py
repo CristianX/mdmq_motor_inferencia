@@ -14,6 +14,20 @@ class RuleModel(models.Model):
     usuario_modificacion = models.CharField(max_length=150)
     dispositivo_modificacion = models.CharField(max_length=150)
 
+    def __str__(self) -> str:
+        return str(
+            {
+                "id": str(self._id),
+                "rule": self.rule,
+                # "fecha_creacion": str(self.fecha_creacion),
+                # "usuario_creacion": self.usuario_creacion,
+                # "dispositivo_creacion": self.dispositivo_creacion,
+                # "fecha_modificacion": str(self.fecha_modificacion),
+                # "usuario_modificacion": self.usuario_modificacion,
+                # "dispositivo_modificacion": self.dispositivo_modificacion,
+            }
+        )
+
 
 class KeywordsModel(models.Model):
     _id = models.ObjectIdField(primary_key=True, editable=False)
@@ -25,6 +39,21 @@ class KeywordsModel(models.Model):
     fecha_modificacion = models.DateTimeField(auto_now=True)
     usuario_modificacion = models.CharField(max_length=150)
     dispositivo_modificacion = models.CharField(max_length=150)
+
+    def __str__(self) -> str:
+        return str(
+            {
+                "id": str(self._id),
+                "keyword": self.keyword,
+                "rule": self.rule,
+                "fecha_creacion": str(self.fecha_creacion),
+                "usuario_creacion": self.usuario_creacion,
+                "dispositivo_creacion": self.dispositivo_creacion,
+                "fecha_modificacion": str(self.fecha_modificacion),
+                "usuario_modificacion": self.usuario_modificacion,
+                "dispositivo_modificacion": self.dispositivo_modificacion,
+            }
+        )
 
 
 # TODO: Está permitiendo guardar campos nulos o en blanco

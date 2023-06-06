@@ -5,11 +5,16 @@ from rest_framework.response import Response
 from .utils.motor_inferencia import motor_inferencia
 from motorInferencia.models import RuleModel, KeywordsModel
 from bson import ObjectId
+from .utils.dataset_motor_inferencia import set_keywords
+
+# from django.forms.models import model_to_dict
 
 
 class InferirConsulta(APIView):
     def post(self, request, *args, **kwargs):
         consulta = request.data
+        # all_keywords = KeywordsModel.objects.all()
+        # print(all_keywords)
 
         try:
             response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
@@ -55,7 +60,7 @@ class Keyword(APIView):
         body = request.data
 
         try:
-            keyword = KeywordsModel.objects.create(
+            keywordsResponse = KeywordsModel.objects.create(
                 keyword=body.get("keyword"),
                 rule=RuleModel.objects.get(_id=ObjectId(body.get("rule"))),
                 usuario_creacion=body.get("usuario_creacion"),
@@ -64,19 +69,16 @@ class Keyword(APIView):
                 dispositivo_modificacion=body.get("dispositivo_modificacion"),
             )
 
-            keyword_records = KeywordsModel.objects.all()
-            # return Response(
-            #     {"message": "Keyword creada exitosamente", "data": keyword_data},
-            #     status=status.HTTP_201_CREATED,
-            # )
-            keywords_data = []
+            set_keywords((keywordsResponse.keyword, keywordsResponse.rule.rule))
+            return Response(
+                {"message": "Keyword creada exitosamente"},
+                status=status.HTTP_201_CREATED,
+            )
 
-            for keyword_record in keyword_records:
-                keyword_record_dict = keyword_record.__dict__
-                keyword_record_dict["_id"] = str(keyword_record_dict["_id"])
-                keywords_data.append(keyword_record_dict)
-
-            return Response(keywords_data)
+            # for keyword_record in keyword_records:
+            #     keyword_record_dict = keyword_record.__dict__
+            #     keyword_record_dict["_id"] = str(keyword_record_dict["_id"])
+            #     keywords_data.append(keyword_record_dict)
 
         except Exception as e:
             return Response(
