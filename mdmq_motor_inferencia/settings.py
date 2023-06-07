@@ -140,3 +140,6 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     "http://localhost:8000",
 #     "http://127.0.0.1:9000"
 # ]
+
+# DataSet
+DATA_KEYWORDS = []

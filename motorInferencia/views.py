@@ -6,6 +6,7 @@ from .utils.motor_inferencia import motor_inferencia
 from motorInferencia.models import RuleModel, KeywordsModel
 from bson import ObjectId
 from .utils.dataset_motor_inferencia import set_keywords
+from django.conf import settings
 
 # from django.forms.models import model_to_dict
 
@@ -18,6 +19,7 @@ class InferirConsulta(APIView):
 
         try:
             response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
+            print(settings.DATA_KEYWORDS)
             return Response(
                 {
                     "data": response_motor_inferencia,
