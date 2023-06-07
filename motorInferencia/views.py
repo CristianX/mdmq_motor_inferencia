@@ -6,7 +6,6 @@ from .utils.motor_inferencia import motor_inferencia
 from motorInferencia.models import RuleModel, KeywordsModel
 from bson import ObjectId
 from .utils.dataset_motor_inferencia import set_keywords
-from django.conf import settings
 
 # from django.forms.models import model_to_dict
 
@@ -15,11 +14,9 @@ class InferirConsulta(APIView):
     def post(self, request, *args, **kwargs):
         consulta = request.data
         # all_keywords = KeywordsModel.objects.all()
-        # print(all_keywords)
 
         try:
             response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
-            print(settings.DATA_KEYWORDS)
             return Response(
                 {
                     "data": response_motor_inferencia,
@@ -71,7 +68,7 @@ class Keyword(APIView):
                 dispositivo_modificacion=body.get("dispositivo_modificacion"),
             )
 
-            set_keywords((keywordsResponse.keyword, keywordsResponse.rule.rule))
+            # set_keywords((keywordsResponse.keyword, keywordsResponse.rule.rule))
             return Response(
                 {"message": "Keyword creada exitosamente"},
                 status=status.HTTP_201_CREATED,

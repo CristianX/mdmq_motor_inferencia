@@ -1,6 +1,8 @@
 from experta import *
 import difflib
 from decouple import config
+from django.conf import settings
+from .dataset_motor_inferencia import get_keywords
 
 
 class Command(Fact):
@@ -13,7 +15,7 @@ def motor_inferencia(consulta):
             super().__init__()
             self.resultado = None
 
-        @Rule(Command(action="compra_predio"))
+        @Rule(Command(action="consulta_permiso"))
         def rule_compra_predio(self):
             self.resultado = {
                 "1": {
@@ -42,37 +44,44 @@ def motor_inferencia(consulta):
     command = consulta
 
     # Definiendo palabras clave y acciones asociadas
-    keywords = [
-        (
-            [
-                "Como puedo cambiar el nombre de un predio",
-                "Como registro un predio",
-                "registrar predio",
-                "compre un predio",
-                "tengo un predio, como puedo saber sobre este",
-                "como puedo saber sobre el predio",
-            ],
-            "compra_predio",
-        ),
-        (
-            [
-                "Como obtener una licencia metropolitana urbanística",
-                "sacar licencia metropolitana urbanistica",
-                "que hago para sacar una licencia metropolitana urbanística",
-            ],
-            "licencia_metropolitana_urbanistica",
-        ),
-    ]
+    # keywords = [
+    #     (
+    #         [
+    #             "Como puedo cambiar el nombre de un predio",
+    #             "Como registro un predio",
+    #             "registrar predio",
+    #             "compre un predio",
+    #             "tengo un predio, como puedo saber sobre este",
+    #             "como puedo saber sobre el predio",
+    #         ],
+    #         "compra_predio",
+    #     ),
+    #     (
+    #         [
+    #             "Como obtener una licencia metropolitana urbanística",
+    #             "sacar licencia metropolitana urbanistica",
+    #             "que hago para sacar una licencia metropolitana urbanística",
+    #         ],
+    #         "licencia_metropolitana_urbanistica",
+    #     ),
+    # ]
+
+    keywords = get_keywords()
 
     # Buscando palabras clave en el comando
     matched_action = None
     max_similarity = 0
-    for keyword_list, action in keywords:
-        for keyword in keyword_list:
-            similarity = difflib.SequenceMatcher(None, keyword, command.lower()).ratio()
-            if similarity > max_similarity:
-                max_similarity = similarity
-                matched_action = action
+    # for keyword_list, action in keywords:
+    #     for keyword in keyword_list:
+    #         similarity = difflib.SequenceMatcher(None, keyword, command.lower()).ratio()
+    #         if similarity > max_similarity:
+    #             max_similarity = similarity
+    #             matched_action = action
+    for keyword, action in keywords:
+        similarity = difflib.SequenceMatcher(None, keyword, command.lower()).ratio()
+        if similarity > max_similarity:
+            max_similarity = similarity
+            matched_action = action
 
     # Estableciendo hecho y realizando inferencia
     if matched_action and max_similarity >= float(config("PORCENTAJE_TOLERANCIA")):
