@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from .utils.motor_inferencia import motor_inferencia
 from motorInferencia.models import RuleModel, KeywordsModel
 from bson import ObjectId
-from .utils.dataset_motor_inferencia import set_keywords
+from .utils.dataset_motor_inferencia import DataSetMotorInferencia
 
 # from django.forms.models import model_to_dict
 
@@ -13,7 +13,8 @@ from .utils.dataset_motor_inferencia import set_keywords
 class InferirConsulta(APIView):
     def post(self, request, *args, **kwargs):
         consulta = request.data
-        # all_keywords = KeywordsModel.objects.all()
+
+        # print(DataSetMotorInferencia.get_instance())
 
         try:
             response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])

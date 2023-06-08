@@ -2,7 +2,9 @@ from experta import *
 import difflib
 from decouple import config
 from django.conf import settings
-from .dataset_motor_inferencia import get_keywords
+from .dataset_motor_inferencia import DataSetMotorInferencia
+
+# from .dataset_motor_inferencia import get_keywords
 
 
 class Command(Fact):
@@ -66,7 +68,7 @@ def motor_inferencia(consulta):
     #     ),
     # ]
 
-    keywords = get_keywords()
+    keywords = DataSetMotorInferencia.get_instance()
 
     # Buscando palabras clave en el comando
     matched_action = None

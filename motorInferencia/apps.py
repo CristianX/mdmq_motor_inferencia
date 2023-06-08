@@ -1,12 +1,18 @@
 from django.apps import AppConfig
+import threading
+from .utils.dataset_motor_inferencia import DataSetMotorInferencia
 
 
 class MotorinferenciaConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "motorInferencia"
 
-    # def ready(self):
-    #     super().ready()
-    #     from .utils.dataset_motor_inferencia import set_keywords
+    def ready(self):
+        super().ready()
 
-    #     set_keywords()
+        # Crear un hilo para ejecutar get_instance de forma asíncrona
+        thread = threading.Thread(target=self.async_get_instance)
+        thread.start()
+
+    def async_get_instance(self):
+        DataSetMotorInferencia.get_instance()

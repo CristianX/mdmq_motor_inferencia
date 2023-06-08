@@ -22,6 +22,7 @@
 - pip install djongo
 - pip install pymongo==3.12.1
 - pip install django-cors-headers
+- pip install django-background-task
 
 ## 3. Uso de imagenes en migraciones
 
