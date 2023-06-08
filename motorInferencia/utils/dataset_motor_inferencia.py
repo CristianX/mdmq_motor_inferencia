@@ -27,7 +27,6 @@ class DataSetMotorInferencia:
 
     @classmethod
     def get_instance(cls):
-        from motorInferencia.models import KeywordsModel
 
         # Verificamos si ya existe una instancia en la caché.
         instance = cache.get(cls._instance_key)
@@ -40,7 +39,6 @@ class DataSetMotorInferencia:
         return instance
 
     @classmethod
-    # @background(schedule=10)
     def update_instance(cls, new_keyword_data):
         # Obtener la instancia existente
         instance = cls.get_instance()

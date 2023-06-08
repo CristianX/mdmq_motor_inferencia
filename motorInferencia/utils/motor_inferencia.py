@@ -4,8 +4,6 @@ from decouple import config
 from django.conf import settings
 from .dataset_motor_inferencia import DataSetMotorInferencia
 
-# from .dataset_motor_inferencia import get_keywords
-
 
 class Command(Fact):
     pass
@@ -28,7 +26,7 @@ def motor_inferencia(consulta):
                 "3": "Seleccionar el apartado 'predios'",
             }
 
-        @Rule(Command(action="licencia_metropolitana_urbanistica"))
+        @Rule(Command(action="prueba"))
         def rule_licencia_metropolitana_urbanistica(self):
             self.resultado = {
                 "1": {
@@ -44,29 +42,6 @@ def motor_inferencia(consulta):
 
     # Obteniendo comando de entrada
     command = consulta
-
-    # Definiendo palabras clave y acciones asociadas
-    # keywords = [
-    #     (
-    #         [
-    #             "Como puedo cambiar el nombre de un predio",
-    #             "Como registro un predio",
-    #             "registrar predio",
-    #             "compre un predio",
-    #             "tengo un predio, como puedo saber sobre este",
-    #             "como puedo saber sobre el predio",
-    #         ],
-    #         "compra_predio",
-    #     ),
-    #     (
-    #         [
-    #             "Como obtener una licencia metropolitana urbanística",
-    #             "sacar licencia metropolitana urbanistica",
-    #             "que hago para sacar una licencia metropolitana urbanística",
-    #         ],
-    #         "licencia_metropolitana_urbanistica",
-    #     ),
-    # ]
 
     keywords = DataSetMotorInferencia.get_instance()
 

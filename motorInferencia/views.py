@@ -14,8 +14,6 @@ class InferirConsulta(APIView):
     def post(self, request, *args, **kwargs):
         consulta = request.data
 
-        # print(DataSetMotorInferencia.get_instance())
-
         try:
             response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
             return Response(
@@ -69,7 +67,10 @@ class Keyword(APIView):
                 dispositivo_modificacion=body.get("dispositivo_modificacion"),
             )
 
-            # set_keywords((keywordsResponse.keyword, keywordsResponse.rule.rule))
+            DataSetMotorInferencia.update_instance(
+                (keywordsResponse.keyword, keywordsResponse.rule.rule)
+            )
+
             return Response(
                 {"message": "Keyword creada exitosamente"},
                 status=status.HTTP_201_CREATED,
