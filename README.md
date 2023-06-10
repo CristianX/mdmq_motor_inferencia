@@ -20,6 +20,7 @@
 - Usar pylint django con vscode files/preferences/extensions/python/ buscar pylint path y colocar ¨pylint_django¨
 - pip install python-decouple (Para desacoplamiento, uso de variables de entorno)
 - pip install djongo
+- pip install mongoengine
 - pip install pymongo==3.12.1
 - pip install django-cors-headers
 - pip install django-background-task

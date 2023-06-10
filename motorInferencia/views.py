@@ -3,7 +3,11 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
 from .utils.motor_inferencia import motor_inferencia
-from motorInferencia.models import RuleModel, KeywordsModel
+from motorInferencia.models import (
+    RuleModel,
+    KeywordsModel,
+    # InferenciaModel,
+)
 from bson import ObjectId
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
 
@@ -34,13 +38,15 @@ class Rule(APIView):
         body = request.data
 
         try:
-            rule = RuleModel.objects.create(
+            rule = RuleModel(
                 rule=body.get("rule") or None,
                 usuario_creacion=body.get("usuario_creacion"),
                 dispositivo_creacion=body.get("dispositivo_creacion"),
                 usuario_modificacion=body.get("usuario_modificacion"),
                 dispositivo_modificacion=body.get("dispositivo_modificacion"),
             )
+            rule.save()
+            print(rule)
             return Response(
                 {"message": "Regla creada exitosamente"},
                 status=status.HTTP_201_CREATED,
@@ -58,17 +64,19 @@ class Keyword(APIView):
         body = request.data
 
         try:
-            keywordsResponse = KeywordsModel.objects.create(
+            keywords = KeywordsModel(
                 keyword=body.get("keyword"),
-                rule=RuleModel.objects.get(_id=ObjectId(body.get("rule"))),
+                rule=RuleModel.objects.get(id=ObjectId(body.get("rule"))),
                 usuario_creacion=body.get("usuario_creacion"),
                 dispositivo_creacion=body.get("dispositivo_creacion"),
                 usuario_modificacion=body.get("usuario_modificacion"),
                 dispositivo_modificacion=body.get("dispositivo_modificacion"),
             )
 
+            keywords.save()
+
             DataSetMotorInferencia.update_instance(
-                (keywordsResponse.keyword, keywordsResponse.rule.rule)
+                (keywords.keyword, keywords.rule.rule)
             )
 
             return Response(
@@ -92,3 +100,31 @@ class Keyword(APIView):
     #     records = MyModel.objects.all()
     #     serializer = MyModelSerializer(records, many=True)
     #     return Response(serializer.data)
+
+
+# class Inferencia(APIView):
+#     def post(self, request, *args, **kwargs):
+#         body = request.data
+
+#         # try:
+#         inferenciaResponse = InferenciaModel.objects.create(
+#             rule=RuleModel.objects.get(_id=ObjectId(body.get("rule"))),
+#             dependencias=body.get("dependencias"),
+#             instructivos=body.get("instructivos"),
+#             prerrequisitos=body.get("prerrequisitos"),
+#             usuario_creacion=body.get("usuario_creacion"),
+#             dispositivo_creacion=body.get("dispositivo_creacion"),
+#             usuario_modificacion=body.get("usuario_modificacion"),
+#             dispositivo_modificacion=body.get("dispositivo_modificacion"),
+#         )
+
+#         return Response(
+#             {"message": "Keyword creada exitosamente"},
+#             status=status.HTTP_201_CREATED,
+#         )
+
+# except Exception as e:
+#     return Response(
+#         {"message": f"Error en la creación de la nueva inferencia {e}"},
+#         status=status.HTTP_400_BAD_REQUEST,
+#     )

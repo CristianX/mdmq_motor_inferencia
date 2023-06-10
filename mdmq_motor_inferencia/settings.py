@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from decouple import config
+from mongoengine import connect
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,7 +42,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
-    # "background_task",
     "motorInferencia",
 ]
 
@@ -81,14 +82,25 @@ WSGI_APPLICATION = "mdmq_motor_inferencia.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": config("ENGINE"),
-        "NAME": config("NAME"),
-        "ENFORCE_SCHEMA": config("ENFORCE_SCHEMA"),
-        "CLIENT": {"host": config("CLIENT_HOST")},
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": config("ENGINE"),
+#         "NAME": config("NAME"),
+#         "ENFORCE_SCHEMA": config("ENFORCE_SCHEMA"),
+#         "CLIENT": {"host": config("CLIENT_HOST")},
+#     }
+# }
+
+from mongoengine import connect
+
+connect(
+    db="MDMQ_MOTOR_INFERENCIA",
+    username="root",
+    password="Rm3MpB4vR5AXPL",
+    authentication_source='admin',
+    host="172.22.4.160",
+    port=6400,
+)
 
 
 # Password validation
