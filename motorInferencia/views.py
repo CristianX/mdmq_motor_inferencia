@@ -6,7 +6,10 @@ from .utils.motor_inferencia import motor_inferencia
 from motorInferencia.models import (
     RuleModel,
     KeywordsModel,
-    # InferenciaModel,
+    InferenciaModel,
+    Dependencia,
+    Instructivo,
+    Prerrequisito,
 )
 from bson import ObjectId
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
@@ -102,29 +105,41 @@ class Keyword(APIView):
     #     return Response(serializer.data)
 
 
-# class Inferencia(APIView):
-#     def post(self, request, *args, **kwargs):
-#         body = request.data
+class Inferencia(APIView):
+    def post(self, request, *args, **kwargs):
+        body = request.data
 
-#         # try:
-#         inferenciaResponse = InferenciaModel.objects.create(
-#             rule=RuleModel.objects.get(_id=ObjectId(body.get("rule"))),
-#             dependencias=body.get("dependencias"),
-#             instructivos=body.get("instructivos"),
-#             prerrequisitos=body.get("prerrequisitos"),
-#             usuario_creacion=body.get("usuario_creacion"),
-#             dispositivo_creacion=body.get("dispositivo_creacion"),
-#             usuario_modificacion=body.get("usuario_modificacion"),
-#             dispositivo_modificacion=body.get("dispositivo_modificacion"),
-#         )
+        try:
+            dependencias_data = body.get("dependencias", [])
+            instructivos_data = body.get("instructivos", [])
+            prerrequisitos_data = body.get("prerrequisitos", [])
 
-#         return Response(
-#             {"message": "Keyword creada exitosamente"},
-#             status=status.HTTP_201_CREATED,
-#         )
+            dependencias = [Dependencia(**dep) for dep in dependencias_data]
+            instructivos = [Instructivo(**ins) for ins in instructivos_data]
+            prerrequisitos = [Prerrequisito(**pre) for pre in prerrequisitos_data]
 
-# except Exception as e:
-#     return Response(
-#         {"message": f"Error en la creación de la nueva inferencia {e}"},
-#         status=status.HTTP_400_BAD_REQUEST,
-#     )
+            inferencia = InferenciaModel(
+                rule=RuleModel.objects.get(id=ObjectId(body.get("rule"))),
+                dependencias=dependencias,
+                instructivos=instructivos,
+                prerrequisitos=prerrequisitos,
+                usuario_creacion=body.get("usuario_creacion"),
+                dispositivo_creacion=body.get("dispositivo_creacion"),
+                usuario_modificacion=body.get("usuario_modificacion"),
+                dispositivo_modificacion=body.get("dispositivo_modificacion"),
+            )
+
+            inferencia.save()
+
+            print(inferencia)
+
+            return Response(
+                {"message": "Inferencia creada exitosamente"},
+                status=status.HTTP_201_CREATED,
+            )
+
+        except Exception as e:
+            return Response(
+                {"message": f"Error en la creación de la nueva inferencia {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
