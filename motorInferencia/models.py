@@ -89,17 +89,46 @@ class Instructivo(EmbeddedDocument):
 class Prerrequisito(EmbeddedDocument):
     numero = IntField()
     descripcion = StringField(max_length=500)
+    tipo_requisito = StringField(max_length=255)
     url = URLField()
 
-    class Meta:
-        abstract = True
+
+class DirigidoA(EmbeddedDocument):
+    tipo_persona = StringField(max_length=50)
+    nacionalidad = StringField(max_length=255)
+    descripcion = StringField(max_length=1024)
+
+
+class Horario(EmbeddedDocument):
+    rango = StringField(max_length=255)
+    descripcion_respuesta = StringField(max_length=1024)
+
+
+class Contactos(EmbeddedDocument):
+    contacto = StringField(max_length=500)
+    email = StringField(max_length=200)
+    telefono = StringField(max_length=300)
+
+
+class BaseLegal(EmbeddedDocument):
+    nombre = StringField(max_length=500)
+    url = URLField()
 
 
 class InferenciaModel(Document):
     rule = ReferenceField(RuleModel, reverse_delete_rule=2)
+    meta = {"indexes": [{"fields": ["rule"], "unique": True}]}
+    descripcion = StringField(max_length=500)
     dependencias = ListField(EmbeddedDocumentField(Dependencia))
-    instructivos = ListField(EmbeddedDocumentField(Instructivo))
+    dirigido_a = ListField(EmbeddedDocumentField(DirigidoA))
     prerrequisitos = ListField(EmbeddedDocumentField(Prerrequisito))
+    instructivos = ListField(EmbeddedDocumentField(Instructivo))
+    nota = StringField(max_length=1024)
+    costo_tramite = StringField(max_length=255)
+    horario = EmbeddedDocumentField(Horario)
+    vigencia = StringField(max_length=500)
+    contactos = ListField(EmbeddedDocumentField(Contactos))
+    base_legal = ListField(EmbeddedDocumentField(BaseLegal))
     fecha_creacion = DateTimeField(default=datetime.utcnow)
     usuario_creacion = StringField(max_length=150, blank=False, null=False)
     dispositivo_creacion = StringField(max_length=150, blank=False, null=False)
@@ -115,9 +144,63 @@ class InferenciaModel(Document):
         return str(
             {
                 "rule": self.rule,
-                "dependencias": [str(dep.nombre) for dep in self.dependencias],
-                "instructivos": [str(ins.descripcion) for ins in self.instructivos],
-                "prerrequisitos": [str(pre.descripcion) for pre in self.prerrequisitos],
+                "dependencias": [
+                    str({"nombre": dep.nombre}) for dep in self.dependencias
+                ],
+                "dirigido_a": [
+                    str(
+                        {
+                            "tipo_persona": dir.tipo_persona,
+                            "nacionalidad": dir.nacionalidad,
+                            "descripcion": dir.descripcion,
+                        }
+                    )
+                    for dir in self.dirigido_a
+                ],
+                "prerrequisitos": [
+                    str(
+                        {
+                            "numero": pre.numero,
+                            "descripcion": pre.descripcion,
+                            "tipo_requisito": pre.tipo_requisito,
+                            "url": pre.url,
+                        }
+                    )
+                    for pre in self.prerrequisitos
+                ],
+                "instructivos": [
+                    str(
+                        {
+                            "numero": ins.numero,
+                            "descripcion": ins.descripcion,
+                            "url": ins.url,
+                        }
+                    )
+                    for ins in self.instructivos
+                ],
+                "nota": self.nota,
+                "costo_tramite": self.costo_tramite,
+                "horario": str(
+                    {
+                        "rango": self.horario.rango,
+                        "descripcion_respuesta": self.horario.descripcion_respuesta,
+                    }
+                ),
+                "vigencia": self.vigencia,
+                "contactos": [
+                    str(
+                        {
+                            "contacto": con.contacto,
+                            "email": con.email,
+                            "telefono": con.telefono,
+                        }
+                    )
+                    for con in self.contactos
+                ],
+                "base_legal": [
+                    str({"nombre": base.nombre, "url": base.url})
+                    for base in self.base_legal
+                ],
                 "fecha_creacion": str(self.fecha_creacion),
                 "usuario_creacion": self.usuario_creacion,
                 "dispositivo_creacion": self.dispositivo_creacion,

@@ -10,9 +10,14 @@ from motorInferencia.models import (
     Dependencia,
     Instructivo,
     Prerrequisito,
+    DirigidoA,
+    Horario,
+    Contactos,
+    BaseLegal,
 )
 from bson import ObjectId
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
+from .utils.data_resultado_inferencia import DataSetResultadoInferencia
 
 # from django.forms.models import model_to_dict
 
@@ -113,16 +118,32 @@ class Inferencia(APIView):
             dependencias_data = body.get("dependencias", [])
             instructivos_data = body.get("instructivos", [])
             prerrequisitos_data = body.get("prerrequisitos", [])
+            dirigido_a_data = body.get("dirigido_a", [])
+            horario_data = body.get("horario", {})
+            contactos_data = body.get("contactos", [])
+            base_legal_data = body.get("base_legal", [])
 
             dependencias = [Dependencia(**dep) for dep in dependencias_data]
             instructivos = [Instructivo(**ins) for ins in instructivos_data]
             prerrequisitos = [Prerrequisito(**pre) for pre in prerrequisitos_data]
+            dirigido_a = [DirigidoA(**dirA) for dirA in dirigido_a_data]
+            horario = Horario(**horario_data)
+            contactos = [Contactos(**contact) for contact in contactos_data]
+            base_legal = [BaseLegal(**baseLegal) for baseLegal in base_legal_data]
 
             inferencia = InferenciaModel(
                 rule=RuleModel.objects.get(id=ObjectId(body.get("rule"))),
+                descripcion=body.get("descripcion"),
                 dependencias=dependencias,
-                instructivos=instructivos,
+                dirigido_a=dirigido_a,
                 prerrequisitos=prerrequisitos,
+                instructivos=instructivos,
+                nota=body.get("nota"),
+                costo_tramite=body.get("costo_tramite"),
+                horario=horario,
+                vigencia=body.get("vigencia"),
+                contactos=contactos,
+                base_legal=base_legal,
                 usuario_creacion=body.get("usuario_creacion"),
                 dispositivo_creacion=body.get("dispositivo_creacion"),
                 usuario_modificacion=body.get("usuario_modificacion"),
@@ -130,6 +151,25 @@ class Inferencia(APIView):
             )
 
             inferencia.save()
+
+            DataSetResultadoInferencia.update_instance(
+                (
+                    inferencia.rule.rule,
+                    {
+                        "descripcion": inferencia.descripcion,
+                        "dependencias": inferencia.dependencias,
+                        "dirigido_a": inferencia.dirigido_a,
+                        "prerrequisitos": inferencia.prerrequisitos,
+                        "instructivos": inferencia.instructivos,
+                        "nota": inferencia.nota,
+                        "costo_tramite": inferencia.costo_tramite,
+                        "horario": inferencia.horario,
+                        "vigencia": inferencia.vigencia,
+                        "contactos": inferencia.contactos,
+                        "base_legal": inferencia.base_legal,
+                    },
+                )
+            )
 
             print(inferencia)
 
