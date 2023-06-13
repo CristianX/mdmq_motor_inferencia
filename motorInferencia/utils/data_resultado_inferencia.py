@@ -3,6 +3,7 @@ from django.core.cache import cache
 
 class DataSetResultadoInferencia:
     _instance_key = "dataset_resultado_inferencia"
+    _last_update_key = "last_update_dataset_resultado_inferencia"
 
     @classmethod
     def get_instance(cls):
@@ -33,6 +34,8 @@ class DataSetResultadoInferencia:
     def _create_inferencia_data():
         from motorInferencia.models import InferenciaModel
 
+        InferenciaModel.ensure_indexes()
+
         inferenciasResultadoResponse = InferenciaModel.objects.all()
 
         # Asignando data a instancia por primera vez
@@ -56,3 +59,18 @@ class DataSetResultadoInferencia:
             for inferencia_resultado in inferenciasResultadoResponse
         ]
         return data_resultado_inferencia
+
+
+    @classmethod
+    def data_changed(cls):
+        from motorInferencia.models import InferenciaModel
+
+        last_modification = InferenciaModel.objects.order_by('-fecha_modificacion').first().fecha_modificacion
+
+        last_update = cache.get(cls._last_update_key)
+
+        if last_update is None or last_modification > last_update:
+            cache.set(cls._last_update_key, last_modification)
+            return True
+        
+        return False

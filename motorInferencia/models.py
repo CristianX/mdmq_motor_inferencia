@@ -53,6 +53,12 @@ class KeywordsModel(Document):
     usuario_modificacion = StringField(max_length=150)
     dispositivo_modificacion = StringField(max_length=150)
 
+    meta = {
+        "indexes": [
+            "-fecha_modificacion",
+        ]
+    }
+
     def save(self, *args, **kwargs):
         self.fecha_modificacion = datetime.utcnow()
         return super(KeywordsModel, self).save(*args, **kwargs)
@@ -71,6 +77,10 @@ class KeywordsModel(Document):
                 "dispositivo_modificacion": self.dispositivo_modificacion,
             }
         )
+
+
+# Creando instancia para definir el modelo
+KeywordsModel.ensure_indexes()
 
 
 # TODO: Está permitiendo guardar campos nulos o en blanco
@@ -117,7 +127,6 @@ class BaseLegal(EmbeddedDocument):
 
 class InferenciaModel(Document):
     rule = ReferenceField(RuleModel, reverse_delete_rule=2)
-    meta = {"indexes": [{"fields": ["rule"], "unique": True}]}
     descripcion = StringField(max_length=500)
     dependencias = ListField(EmbeddedDocumentField(Dependencia))
     dirigido_a = ListField(EmbeddedDocumentField(DirigidoA))
@@ -135,6 +144,8 @@ class InferenciaModel(Document):
     fecha_modificacion = DateTimeField(default=datetime.utcnow)
     usuario_modificacion = StringField(max_length=150)
     dispositivo_modificacion = StringField(max_length=150)
+
+    meta = {"indexes": [{"fields": ["rule"], "unique": True}, "-fecha_modificacion"]}
 
     def save(self, *args, **kwargs):
         self.fecha_modificacion = datetime.utcnow()
@@ -209,3 +220,5 @@ class InferenciaModel(Document):
                 "dispositivo_modificacion": self.dispositivo_modificacion,
             }
         )
+
+
