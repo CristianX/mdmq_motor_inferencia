@@ -89,11 +89,17 @@ KeywordsModel.ensure_indexes()
 class Dependencia(EmbeddedDocument):
     nombre = StringField(max_length=255)
 
+    def to_dict(self):
+        return {"nombre": self.nombre}
+
 
 class Instructivo(EmbeddedDocument):
     numero = IntField()
     descripcion = StringField(max_length=500)
     url = URLField()
+
+    def to_dict(self):
+        return {"numero": self.numero, "descripcion": self.descripcion, "url": self.url}
 
 
 class Prerrequisito(EmbeddedDocument):
@@ -102,16 +108,37 @@ class Prerrequisito(EmbeddedDocument):
     tipo_requisito = StringField(max_length=255)
     url = URLField()
 
+    def to_dict(self):
+        return {
+            "numero": self.numero,
+            "descripcion": self.descripcion,
+            "tipo_requisito": self.tipo_requisito,
+            "url": self.url,
+        }
+
 
 class DirigidoA(EmbeddedDocument):
     tipo_persona = StringField(max_length=50)
     nacionalidad = StringField(max_length=255)
     descripcion = StringField(max_length=1024)
 
+    def to_dict(self):
+        return {
+            "tipo_persona": self.tipo_persona,
+            "nacionalidad": self.nacionalidad,
+            "descripcion": self.descripcion,
+        }
+
 
 class Horario(EmbeddedDocument):
     rango = StringField(max_length=255)
     descripcion_respuesta = StringField(max_length=1024)
+
+    def to_dict(self):
+        return {
+            "rango": self.rango,
+            "descripcion_respuesta": self.descripcion_respuesta,
+        }
 
 
 class Contactos(EmbeddedDocument):
@@ -119,10 +146,20 @@ class Contactos(EmbeddedDocument):
     email = StringField(max_length=200)
     telefono = StringField(max_length=300)
 
+    def to_dict(self):
+        return {
+            "contacto": self.contacto,
+            "email": self.email,
+            "telefono": self.telefono,
+        }
+
 
 class BaseLegal(EmbeddedDocument):
     nombre = StringField(max_length=500)
     url = URLField()
+
+    def to_dict(self):
+        return {"nombre": self.nombre, "url": self.url}
 
 
 class InferenciaModel(Document):
@@ -220,5 +257,3 @@ class InferenciaModel(Document):
                 "dispositivo_modificacion": self.dispositivo_modificacion,
             }
         )
-
-

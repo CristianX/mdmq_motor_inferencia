@@ -27,7 +27,7 @@ class InferirConsulta(APIView):
         consulta = request.data
 
         # print(DataSetMotorInferencia.get_instance())
-        print(DataSetResultadoInferencia.get_instance())
+        # print(DataSetResultadoInferencia.get_instance())
 
         try:
             response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
