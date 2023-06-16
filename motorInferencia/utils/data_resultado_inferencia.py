@@ -60,17 +60,22 @@ class DataSetResultadoInferencia:
         ]
         return data_resultado_inferencia
 
-
     @classmethod
     def data_changed(cls):
         from motorInferencia.models import InferenciaModel
 
-        last_modification = InferenciaModel.objects.order_by('-fecha_modificacion').first().fecha_modificacion
+        last_modification = (
+            InferenciaModel.objects.order_by("-fecha_modificacion")
+            .first()
+            .fecha_modificacion
+        )
+        print("Last modify desde bdd: ", last_modification)
 
         last_update = cache.get(cls._last_update_key)
+        print("Last modify desde cache", last_update)
 
         if last_update is None or last_modification > last_update:
             cache.set(cls._last_update_key, last_modification)
             return True
-        
+
         return False
