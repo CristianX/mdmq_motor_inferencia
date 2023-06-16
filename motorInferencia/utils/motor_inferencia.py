@@ -28,7 +28,6 @@ class InferenceEngine(KnowledgeEngine):
 
     @Rule(Command(action=MATCH.action))
     def capture_result(self, action):
-        print("Capture data", action)
         rule_data = data_inferencia.get(action)
         if rule_data:
             self.resultado = rule_data
@@ -59,13 +58,6 @@ def update_data():
     data_inferencia = {rule: embedded_to_dict(value) for rule, value in raw_data}
     engine = InferenceEngine()
     engine.reset()
-    # engine.declare(*engine._initial_action())
-
-    # for rule, attributes in data_inferencia.items():
-    #     # print("Rule", rule)
-    #     # print("Actions", attributes)
-    #     engine.declare(Command(action=rule))
-    #     engine.declare(Resultado(resultado=attributes))
 
 
 def motor_inferencia(consulta):
@@ -77,36 +69,23 @@ def motor_inferencia(consulta):
     ):
         update_data()
 
-    # print("Data inferencia", data_inferencia.items())
-    # print("Keywords inferencia", keywords.items())
-
     matched_action = None
     max_similarity = 0
     for keyword, action in keywords.items():
-        # print("palabra: ", keyword)
-        # print("acción: ", action)
         similarity = difflib.SequenceMatcher(None, keyword, consulta.lower()).ratio()
-        # print("Similitud entre '{}' y '{}': {}".format(keyword, consulta, similarity))
         if similarity > max_similarity:
             max_similarity = similarity
             matched_action = action
 
-    # print("Máxima similitud: ", max_similarity)
-    # print("Acción coincidente: ", matched_action)
-
-    # Check the similarity threshold and whether the action exists in the results dictionary
     if matched_action and max_similarity >= float(config("PORCENTAJE_TOLERANCIA")):
-        # Run the engine with the matched action
-        engine.reset()  # Reset the engine state
-        engine.declare(Command(action=matched_action))  # Declare the matched command
-        engine.run()  # Run the engine
+        engine.reset()
+        engine.declare(Command(action=matched_action))
+        engine.run()
         for fact_key in engine.facts:
             fact = engine.facts[fact_key]
             if isinstance(fact, Resultado):
-                # print("Entra al IF", fact["resultado"])
                 return fact["resultado"]
 
-    # En caso de no encontrar coincidencias
     else:
         try:
             keywords_no_mapping = KeyWordsNoMappingModel(

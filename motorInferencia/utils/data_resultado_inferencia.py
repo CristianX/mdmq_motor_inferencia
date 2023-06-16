@@ -69,10 +69,8 @@ class DataSetResultadoInferencia:
             .first()
             .fecha_modificacion
         )
-        print("Last modify desde bdd: ", last_modification)
 
         last_update = cache.get(cls._last_update_key)
-        print("Last modify desde cache", last_update)
 
         if last_update is None or last_modification > last_update:
             cache.set(cls._last_update_key, last_modification)

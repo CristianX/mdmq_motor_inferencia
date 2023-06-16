@@ -17,7 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from motorInferencia.views import InferirConsulta, Rule, Keyword, Inferencia
+from motorInferencia.views import (
+    InferirConsulta,
+    Rule,
+    Keyword,
+    Inferencia,
+    KeywordNoMapping,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -25,4 +31,9 @@ urlpatterns = [
     path("rule/", Rule.as_view(), name="rule"),
     path("keyword/", Keyword.as_view(), name="keyword"),
     path("inferencia/", Inferencia.as_view(), name="inferencia"),
+    path(
+        "keyword-no-mapping/<str:keyword_no_mapping_id>",
+        KeywordNoMapping.as_view(),
+        name="keyword_no_mapping",
+    ),
 ]

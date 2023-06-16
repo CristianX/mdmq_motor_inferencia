@@ -14,6 +14,7 @@ from motorInferencia.models import (
     Horario,
     Contactos,
     BaseLegal,
+    KeyWordsNoMappingModel,
 )
 from bson import ObjectId
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
@@ -25,9 +26,6 @@ from .utils.data_resultado_inferencia import DataSetResultadoInferencia
 class InferirConsulta(APIView):
     def post(self, request, *args, **kwargs):
         consulta = request.data
-
-        # print(DataSetMotorInferencia.get_instance())
-        # print(DataSetResultadoInferencia.get_instance())
 
         try:
             response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
@@ -57,7 +55,6 @@ class Rule(APIView):
                 dispositivo_modificacion=body.get("dispositivo_modificacion"),
             )
             rule.save()
-            print(rule)
             return Response(
                 {"message": "Regla creada exitosamente"},
                 status=status.HTTP_201_CREATED,
@@ -174,8 +171,6 @@ class Inferencia(APIView):
                 )
             )
 
-            print(inferencia)
-
             return Response(
                 {"message": "Inferencia creada exitosamente"},
                 status=status.HTTP_201_CREATED,
@@ -184,5 +179,24 @@ class Inferencia(APIView):
         except Exception as e:
             return Response(
                 {"message": f"Error en la creación de la nueva inferencia {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class KeywordNoMapping(APIView):
+    def delete(self, request, keyword_no_mapping_id):
+        try:
+            keyword_no_mapping = KeyWordsNoMappingModel.objects.get(
+                id=keyword_no_mapping_id
+            )
+            keyword_no_mapping.delete()
+            return Response(
+                {"mensaje": "Registro eliminado correctamente"},
+                status=status.HTTP_202_ACCEPTED,
+            )
+
+        except:
+            return Response(
+                {"mensaje": "Error al eliminar el registro"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
