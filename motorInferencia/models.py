@@ -257,3 +257,17 @@ class InferenciaModel(Document):
                 "dispositivo_modificacion": self.dispositivo_modificacion,
             }
         )
+
+
+class KeyWordsNoMappingModel(Document):
+    keyword = StringField(max_length=500, required=True, unique=True)
+    fecha_creacion = DateTimeField(default=datetime.utcnow)
+
+    def __str__(self) -> str:
+        return str(
+            {
+                "id": str(self.id),
+                "keyword": self.keyword,
+                "fecha_creacion": str(self.fecha_creacion),
+            }
+        )

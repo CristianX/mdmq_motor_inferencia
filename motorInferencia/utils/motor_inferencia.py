@@ -5,6 +5,7 @@ from django.conf import settings
 from mongoengine import EmbeddedDocument
 from .dataset_motor_inferencia import DataSetMotorInferencia
 from .data_resultado_inferencia import DataSetResultadoInferencia
+from motorInferencia.models import KeyWordsNoMappingModel
 
 
 class Command(Fact):
@@ -104,5 +105,16 @@ def motor_inferencia(consulta):
             if isinstance(fact, Resultado):
                 # print("Entra al IF", fact["resultado"])
                 return fact["resultado"]
+
+    # En caso de no encontrar coincidencias
+    else:
+        try:
+            keywords_no_mapping = KeyWordsNoMappingModel(
+                keyword=consulta,
+            )
+
+            keywords_no_mapping.save()
+        except:
+            return "Error en la asignación de frase"
 
     return "No se encontró respuesta para su solicitud, dirigirse a la url https://pam.quito.gob.ec/PAM/Inicio.aspx, al apartado de la parte inferior (Contactos)"
