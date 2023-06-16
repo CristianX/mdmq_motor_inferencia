@@ -4,8 +4,8 @@
 FROM python:3.8
 
 # Establecer variables de entorno
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# ENV PYTHONDONTWRITEBYTECODE 1
+# ENV PYTHONUNBUFFERED 1
 
 # Establecer el directorio de trabajo
 WORKDIR /code
