@@ -28,9 +28,7 @@ class InferirConsulta(APIView):
         consulta = request.data
 
         try:
-            response_motor_inferencia = motor_inferencia(
-                consulta=consulta["mensaje"]
-            ).lower()
+            response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
             return Response(
                 {
                     "data": response_motor_inferencia,
@@ -187,6 +185,29 @@ class Keyword(APIView):
         except Exception as e:
             return Response(
                 {"message": f"Error al actualizar la keyword: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    def delete(self, request, *args, **kwargs):
+        keyword = None
+        try:
+            keyword = KeywordsModel.objects(id=ObjectId(kwargs.get("id"))).first()
+            if not keyword:
+                return Response(
+                    {"message": "Frase no encontrada"}, status=status.HTTP_404_NOT_FOUND
+                )
+
+            keyword.delete()
+
+            DataSetMotorInferencia.refresh_dataset()
+
+            return Response(
+                {"message": "Frase eliminada"}, status=status.HTTP_204_NO_CONTENT
+            )
+
+        except Exception as e:
+            return Response(
+                {"message": f"Error al eliminar la frase {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

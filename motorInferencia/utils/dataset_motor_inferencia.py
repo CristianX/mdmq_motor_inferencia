@@ -64,6 +64,9 @@ class DataSetMotorInferencia:
 
     @classmethod
     def refresh_dataset(cls):
+        # Eliminar data de la cache
+        cache.delete(cls._instance_key)
+
         instance = cls._create_keywords_data()
         cache.set(cls._instance_key, instance)
         return instance
