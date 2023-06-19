@@ -43,17 +43,27 @@ class DataSetMotorInferencia:
             (keyword.keyword, keyword.rule.rule) for keyword in keywordsResponse
         ]
         return data_keywords
-    
+
     @classmethod
     def data_changed(cls):
         from motorInferencia.models import KeywordsModel
 
-        last_modification = KeywordsModel.objects.order_by('-fecha_modificacion').first().fecha_modificacion
+        last_modification = (
+            KeywordsModel.objects.order_by("-fecha_modificacion")
+            .first()
+            .fecha_modificacion
+        )
 
         last_update = cache.get(cls._last_update_key)
 
         if last_update is None or last_modification > last_update:
             cache.set(cls._last_update_key, last_modification)
             return True
-        
+
         return False
+
+    @classmethod
+    def refresh_dataset(cls):
+        instance = cls._create_keywords_data()
+        cache.set(cls._instance_key, instance)
+        return instance

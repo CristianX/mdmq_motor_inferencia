@@ -28,7 +28,9 @@ class InferirConsulta(APIView):
         consulta = request.data
 
         try:
-            response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
+            response_motor_inferencia = motor_inferencia(
+                consulta=consulta["mensaje"]
+            ).lower()
             return Response(
                 {
                     "data": response_motor_inferencia,
@@ -48,7 +50,7 @@ class Rule(APIView):
 
         try:
             rule = RuleModel(
-                rule=body.get("rule") or None,
+                rule=body.get("rule").lower() or None,
                 usuario_creacion=body.get("usuario_creacion"),
                 dispositivo_creacion=body.get("dispositivo_creacion"),
                 usuario_modificacion=body.get("usuario_modificacion"),
@@ -73,7 +75,7 @@ class Keyword(APIView):
 
         try:
             keywords = KeywordsModel(
-                keyword=body.get("keyword"),
+                keyword=body.get("keyword").lower(),
                 rule=RuleModel.objects.get(id=ObjectId(body.get("rule"))),
                 usuario_creacion=body.get("usuario_creacion"),
                 dispositivo_creacion=body.get("dispositivo_creacion"),
@@ -134,6 +136,59 @@ class Keyword(APIView):
                     {"message": f"Error al obtener las keywords {e}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+
+    def put(self, request, *args, **kwargs):
+        keyword = None
+        try:
+            keyword = KeywordsModel.objects(id=ObjectId(kwargs.get("id"))).first()
+
+            if not keyword:
+                return Response(
+                    {"message": "Keyword no encontrada"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            body = request.data
+
+            if body.get("keyword"):
+                existing_keyword = KeywordsModel.objects(
+                    keyword=body.get("keyword").lower()
+                ).first()
+                # print(keyword.id)
+                if existing_keyword and (existing_keyword.id != keyword.id):
+                    return Response(
+                        {"message": "Esa frase ya se encuentra asignada a una regla"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                keyword.keyword = body.get("keyword").lower()
+
+            if body.get("rule"):
+                rule = RuleModel.objects(id=ObjectId(body.get("rule"))).first()
+                if not rule:
+                    return (
+                        Response(
+                            {"message": "Regla no encontrada"},
+                            status=status.HTTP_404_NOT_FOUND,
+                        ),
+                    )
+                keyword.rule = rule
+
+            keyword.usuario_modificacion = body.get("usuario_modificacion")
+            keyword.dispositivo_modificacion = body.get("dispositivo_modificacion")
+            keyword.save()
+
+            DataSetMotorInferencia.refresh_dataset()
+
+            return Response(
+                {"message": "Keyword actualizada exitosamente"},
+                status=status.HTTP_200_OK,
+            )
+
+        except Exception as e:
+            return Response(
+                {"message": f"Error al actualizar la keyword: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class Inferencia(APIView):
