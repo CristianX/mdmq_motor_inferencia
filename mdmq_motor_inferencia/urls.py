@@ -29,7 +29,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("motor-inferencia/", InferirConsulta.as_view(), name="motor_inferencia"),
     path("rule/", Rule.as_view(), name="rule"),
-    path("keyword/", Keyword.as_view(), name="keyword"),
+    path("keyword/", Keyword.as_view(), name="keyword_create"),
+    path("keyword/<str:id>", Keyword.as_view(), name="keyword"),
     path("inferencia/", Inferencia.as_view(), name="inferencia"),
     path(
         "keyword-no-mapping/<str:keyword_no_mapping_id>",

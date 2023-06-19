@@ -92,22 +92,43 @@ class Keyword(APIView):
                 status=status.HTTP_201_CREATED,
             )
 
-            # for keyword_record in keyword_records:
-            #     keyword_record_dict = keyword_record.__dict__
-            #     keyword_record_dict["_id"] = str(keyword_record_dict["_id"])
-            #     keywords_data.append(keyword_record_dict)
-
         except Exception as e:
             return Response(
                 {"message": f"Error en la creación de la nueva keyword {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-    #     @api_view(['GET'])
-    # def get_all_records(request):
-    #     records = MyModel.objects.all()
-    #     serializer = MyModelSerializer(records, many=True)
-    #     return Response(serializer.data)
+    def get(self, request, *args, **kwargs):
+        if "id" in kwargs:
+            try:
+                keyword = KeywordsModel.objects(id=ObjectId(kwargs.get("id"))).first()
+                if not keyword:
+                    return Response(
+                        {"message": "Keyword no encontrada"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+
+                return Response(
+                    {"keyword": keyword.keyword, "rule": keyword.rule.rule},
+                    status=status.HTTP_200_OK,
+                )
+            except Exception as e:
+                return Response(
+                    {"message": f"Error al obtener la keyword {e}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            try:
+                keywords = KeywordsModel.objects()
+                data = [
+                    {"keyword": kw.keyword, "rule": kw.rule.rule} for kw in keywords
+                ]
+                return Response(data, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response(
+                    {"message": f"Error al obtener las keywords {e}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
 
 class Inferencia(APIView):
