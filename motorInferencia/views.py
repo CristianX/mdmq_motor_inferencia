@@ -109,7 +109,11 @@ class Keyword(APIView):
                     )
 
                 return Response(
-                    {"keyword": keyword.keyword, "rule": keyword.rule.rule},
+                    {
+                        "id": str(keyword.id),
+                        "keyword": keyword.keyword,
+                        "rule": keyword.rule.rule,
+                    },
                     status=status.HTTP_200_OK,
                 )
             except Exception as e:
@@ -121,7 +125,8 @@ class Keyword(APIView):
             try:
                 keywords = KeywordsModel.objects()
                 data = [
-                    {"keyword": kw.keyword, "rule": kw.rule.rule} for kw in keywords
+                    {"id": str(kw.id), "keyword": kw.keyword, "rule": kw.rule.rule}
+                    for kw in keywords
                 ]
                 return Response(data, status=status.HTTP_200_OK)
             except Exception as e:
