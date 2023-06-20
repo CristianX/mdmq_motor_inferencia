@@ -28,7 +28,8 @@ from motorInferencia.views import (
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("motor-inferencia/", InferirConsulta.as_view(), name="motor_inferencia"),
-    path("rule/", Rule.as_view(), name="rule"),
+    path("rule/", Rule.as_view(), name="rule_create"),
+    path("rule/<str:id>", Rule.as_view(), name="rule"),
     path("keyword/", Keyword.as_view(), name="keyword_create"),
     path("keyword/<str:id>", Keyword.as_view(), name="keyword"),
     path("inferencia/", Inferencia.as_view(), name="inferencia"),

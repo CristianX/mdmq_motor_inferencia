@@ -66,6 +66,32 @@ class Rule(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    def get(self, request, *args, **kwargs):
+        if "id" in kwargs:
+            try:
+                rule = RuleModel.objects(id=ObjectId(kwargs.get("id"))).first()
+                if not rule:
+                    return Response(
+                        {"message": "No se ha encontrado la regla indicada"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+                return Response({"id": str(rule.id), "rule": rule.rule})
+            except:
+                return Response(
+                    {"message": "Error al obtener la regla"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            try:
+                rules = RuleModel.objects()
+                data = [{"id": str(rl.id), "rule": rl.rule} for rl in rules]
+                return Response(data, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response(
+                    {f"Error al obtener las reglas: {e}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
 
 class Keyword(APIView):
     def post(self, request, *args, **kwargs):
