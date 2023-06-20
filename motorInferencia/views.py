@@ -126,6 +126,29 @@ class Rule(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    def delete(self, request, *args, **kwargs):
+        rule = None
+        try:
+            rule = RuleModel.objects(id=ObjectId(kwargs.get("id"))).first()
+            if not rule:
+                return Response(
+                    {"message": "Regla no encontrada"}, status=status.HTTP_404_NOT_FOUND
+                )
+
+            rule.delete()
+
+            DataSetMotorInferencia.refresh_dataset()
+            DataSetResultadoInferencia.refresh_dataset()
+
+            return Response(
+                {"message": "Regla eliminada"}, status=status.HTTP_204_NO_CONTENT
+            )
+        except Exception as e:
+            return Response(
+                {"message": f"Error al eliminar la regla: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
 
 class Keyword(APIView):
     def post(self, request, *args, **kwargs):
