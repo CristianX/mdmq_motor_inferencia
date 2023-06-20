@@ -32,7 +32,8 @@ urlpatterns = [
     path("rule/<str:id>", Rule.as_view(), name="rule"),
     path("keyword/", Keyword.as_view(), name="keyword_create"),
     path("keyword/<str:id>", Keyword.as_view(), name="keyword"),
-    path("inferencia/", Inferencia.as_view(), name="inferencia"),
+    path("inferencia/", Inferencia.as_view(), name="inferencia_create"),
+    path("inferencia/<str:id>", Inferencia.as_view(), name="inferencia"),
     path(
         "keyword-no-mapping/<str:keyword_no_mapping_id>",
         KeywordNoMapping.as_view(),

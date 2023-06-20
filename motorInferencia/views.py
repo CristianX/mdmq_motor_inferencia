@@ -367,6 +367,60 @@ class Inferencia(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    def get(self, request, *args, **kwargs):
+        excluded_fields = [
+            "usuario_creacion",
+            "fecha_creacion",
+            "dispositivo_creacion",
+            "usuario_modificacion",
+            "dispositivo_modificacion",
+            "fecha_modificacion",
+        ]
+        if "id" in kwargs:
+            try:
+                inferencia = InferenciaModel.objects(
+                    id=ObjectId(kwargs.get("id"))
+                ).first()
+                if not inferencia:
+                    return Response(
+                        {"message": "Inferencia no encontrada"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+
+                data = inferencia.to_mongo().to_dict()
+                data["_id"] = str(data["_id"])
+                data["rule"] = str(data["rule"])
+
+                for field in excluded_fields:
+                    if field in data:
+                        del data[field]
+
+                return Response(data, status=status.HTTP_200_OK)
+
+            except Exception as e:
+                return Response({"message": f"Error al obtener la inferencia: {e}"})
+
+        else:
+            try:
+                inferencias = InferenciaModel.objects()
+                data = []
+
+                for inf in inferencias:
+                    inferencia_dict = inf.to_mongo().to_dict()
+                    inferencia_dict["_id"] = str(inferencia_dict["_id"])
+                    inferencia_dict["rule"] = str(inferencia_dict["rule"])
+                    for field in excluded_fields:
+                        if field in inferencia_dict:
+                            del inferencia_dict[field]
+                    data.append(inferencia_dict)
+
+                return Response(data, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response(
+                    {"message": f"Error al obtener las inferencias: {e}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
 
 class KeywordNoMapping(APIView):
     def delete(self, request, keyword_no_mapping_id):
