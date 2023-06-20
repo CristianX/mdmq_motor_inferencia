@@ -92,6 +92,40 @@ class Rule(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+    def put(self, request, *args, **kwargs):
+        rule = None
+        try:
+            rule = RuleModel.objects(id=ObjectId(kwargs.get("id"))).first()
+
+            if not rule:
+                return Response(
+                    {"message": "Regla no encontrada"}, status=status.HTTP_404_NOT_FOUND
+                )
+
+            body = request.data
+
+            if body.get("rule"):
+                existing_rule = RuleModel.objects(rule=body.get("rule").lower()).first()
+                if existing_rule and (existing_rule.id != rule.id):
+                    return Response(
+                        {"message": "Esa regla ya se encuentra registrada"},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                rule.rule = body.get("rule").lower()
+
+            rule.usuario_modificacion = body.get("usuario_modificacion")
+            rule.dispositivo_modificacion = body.get("dispositivo_modificacion")
+            rule.save()
+
+            return Response(
+                {"message": "Regla modificada correctamente"}, status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"message": f"Error al actualizar la regla: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
 
 class Keyword(APIView):
     def post(self, request, *args, **kwargs):
