@@ -421,6 +421,106 @@ class Inferencia(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+    def put(self, request, *args, **kwargs):
+        inferencia = None
+        try:
+            inferencia = InferenciaModel.objects(id=ObjectId(kwargs.get("id"))).first()
+
+            if not inferencia:
+                return Response(
+                    {"message": "Inferencia no encontrada"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            body = request.data
+
+            if body.get("rule"):
+                existing_rule = (
+                    RuleModel.objects(id=ObjectId(body.get("rule"))).first().lower()
+                )
+                if not existing_rule:
+                    # existing_keyword = KeywordsModel.objects(
+                    # keyword=body.get("keyword").lower()
+                    # ).first()
+                    Response(
+                        {"message": "Regla no existente"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+                # if existing_keyword and (existing_keyword.id != keyword.id):
+                if existing_rule and (existing_rule.id != inferencia.rule.id):
+                    return Response(
+                        {
+                            "message": "Esa regla ya se encuentra asignada a una inferencia"
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                inferencia.rule = body.get("rule").lower()
+
+            dependencias_data = body.get("dependencias", [])
+            instructivos_data = body.get("instructivos", [])
+            prerrequisitos_data = body.get("prerrequisitos", [])
+            dirigido_a_data = body.get("dirigido_a", [])
+            horario_data = body.get("horario", {})
+            contactos_data = body.get("contactos", [])
+            base_legal_data = body.get("base_legal", [])
+
+            dependencias = [Dependencia(**dep) for dep in dependencias_data]
+            instructivos = [Instructivo(**ins) for ins in instructivos_data]
+            prerrequisitos = [Prerrequisito(**pre) for pre in prerrequisitos_data]
+            dirigido_a = [DirigidoA(**dirA) for dirA in dirigido_a_data]
+            horario = Horario(**horario_data)
+            contactos = [Contactos(**contact) for contact in contactos_data]
+            base_legal = [BaseLegal(**baseLegal) for baseLegal in base_legal_data]
+
+            inferencia.descripcion = body.get("descripcion")
+            inferencia.dependencias = dependencias
+            inferencia.dirigido_a = dirigido_a
+            inferencia.prerrequisitos = prerrequisitos
+            inferencia.instructivos = instructivos
+            inferencia.nota = body.get("nota")
+            inferencia.costo_tramite = body.get("costo_tramite")
+            inferencia.horario = horario
+            inferencia.vigencia = body.get("vigencia")
+            inferencia.contactos = contactos
+            inferencia.base_legal = base_legal
+            inferencia.usuario_modificacion = body.get("usuario_modificacion")
+            inferencia.dispositivo_modificacion = body.get("dispositivo_modificacion")
+
+            DataSetResultadoInferencia.refresh_dataset()
+
+            return Response(
+                {"message": "Inferencia actualizada exitosamente"},
+                status=status.HTTP_200_OK,
+            )
+        except Exception as e:
+            return Response(
+                {"message": f"Error al actualizar la inferencia {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    def delete(self, request, *args, **kwargs):
+        inferencia = None
+        try:
+            inferencia = InferenciaModel.objects(id=ObjectId(kwargs.get("id"))).first()
+            if not inferencia:
+                return Response(
+                    {"message": "Inferencia no encontrada"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+            inferencia.delete()
+
+            DataSetResultadoInferencia.refresh_dataset()
+
+            return Response(
+                {"message": "Inferencia Eliminada"}, status=status.HTTP_204_NO_CONTENT
+            )
+
+        except Exception as e:
+            return Response(
+                {"message": f"Error en eliminar la inferencia {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
 
 class KeywordNoMapping(APIView):
     def delete(self, request, keyword_no_mapping_id):
