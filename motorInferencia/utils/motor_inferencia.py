@@ -119,7 +119,12 @@ def motor_inferencia(consulta):
         except Exception as e:
             return f"Error en la asignación de frase: {e}"
 
-    return "No se encontró respuesta para su solicitud, dirigirse a la url https://pam.quito.gob.ec/PAM/Inicio.aspx, al apartado de la parte inferior (Contactos)"
+    return {
+        "message": "No se ha encontrado ningún resultado para esta búsqueda",
+        "url": "https://pam.quito.gob.ec/PAM/Inicio.aspx",
+        "contactos": "3952300",
+        "ext": "20127",
+    }
 
     # if matched_action and max_similarity >= float(config("PORCENTAJE_TOLERANCIA")):
     #     engine.reset()
