@@ -69,12 +69,6 @@ def motor_inferencia(consulta):
     ):
         update_data()
 
-    def similarity(a, b):
-        a_words = set(a.split())
-        b_words = set(b.split())
-        common_words = a_words & b_words
-        return len(common_words) / max(len(a_words), len(b_words))
-
     possible_actions = []
     max_similarity = 0
     for keyword, action in keywords.items():
