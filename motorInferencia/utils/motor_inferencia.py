@@ -69,31 +69,81 @@ def motor_inferencia(consulta):
     ):
         update_data()
 
-    matched_action = None
+    def similarity(a, b):
+        a_words = set(a.split())
+        b_words = set(b.split())
+        common_words = a_words & b_words
+        return len(common_words) / max(len(a_words), len(b_words))
+
+    possible_actions = []
     max_similarity = 0
     for keyword, action in keywords.items():
-        similarity = difflib.SequenceMatcher(None, keyword, consulta.lower()).ratio()
-        if similarity > max_similarity:
-            max_similarity = similarity
-            matched_action = action
+        similarity_score = difflib.SequenceMatcher(
+            None, keyword.lower(), consulta.lower()
+        ).ratio()
+        print("Keyword", keyword)
+        print("Similaridad", similarity_score)
+        if similarity_score > max_similarity:
+            max_similarity = similarity_score
+            possible_actions = [action]
+        elif similarity_score >= float(config("PORCENTAJE_TOLERANCIA")):
+            possible_actions.append(action)
 
-    if matched_action and max_similarity >= float(config("PORCENTAJE_TOLERANCIA")):
-        engine.reset()
-        engine.declare(Command(action=matched_action))
-        engine.run()
-        for fact_key in engine.facts:
-            fact = engine.facts[fact_key]
-            if isinstance(fact, Resultado):
-                return fact["resultado"]
+    print("posibles acciones:", possible_actions)
+    print("Maxima similaridad:", max_similarity)
+    possible_results = {}
+
+    for action in possible_actions:
+        print("Accion: ", action)
+        if action and max_similarity >= float(config("PORCENTAJE_TOLERANCIA")):
+            engine.reset()
+            engine.declare(Command(action=action))
+            engine.run()
+            for fact_key in engine.facts:
+                fact = engine.facts[fact_key]
+                if isinstance(fact, Resultado):
+                    possible_results[action] = fact["resultado"]
+
+    if possible_results:
+        return possible_results
 
     else:
         try:
-            keywords_no_mapping = KeyWordsNoMappingModel(
-                keyword=consulta,
-            )
+            keyword_no_mapping = KeyWordsNoMappingModel.objects(
+                keyword=consulta
+            ).first()
 
-            keywords_no_mapping.save()
-        except:
-            return "Error en la asignación de frase"
+            if not keyword_no_mapping:
+                keyword_no_mapping = KeyWordsNoMappingModel(
+                    keyword=consulta, conteo_consulta=1
+                )
+                keyword_no_mapping.save()
+            else:
+                keyword_no_mapping.conteo_consulta += 1
+                keyword_no_mapping.save()
+
+        except Exception as e:
+            return f"Error en la asignación de frase: {e}"
 
     return "No se encontró respuesta para su solicitud, dirigirse a la url https://pam.quito.gob.ec/PAM/Inicio.aspx, al apartado de la parte inferior (Contactos)"
+
+    # if matched_action and max_similarity >= float(config("PORCENTAJE_TOLERANCIA")):
+    #     engine.reset()
+    #     engine.declare(Command(action=matched_action))
+    #     engine.run()
+    #     for fact_key in engine.facts:
+    #         fact = engine.facts[fact_key]
+    #         if isinstance(fact, Resultado):
+    #             return fact["resultado"]
+
+    # else:
+    #     try:
+    #         keywords_no_mapping = KeyWordsNoMappingModel(
+    #             keyword=consulta,
+    #         )
+
+    #         keywords_no_mapping.save()
+    #     except:
+    #         return "Error en la asignación de frase"
+
+    # return "No se encontró respuesta para su solicitud, dirigirse a la url https://pam.quito.gob.ec/PAM/Inicio.aspx, al apartado de la parte inferior (Contactos)"

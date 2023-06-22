@@ -261,6 +261,7 @@ class InferenciaModel(Document):
 
 class KeyWordsNoMappingModel(Document):
     keyword = StringField(max_length=500, required=True, unique=True)
+    conteo_consulta = IntField()
     fecha_creacion = DateTimeField(default=datetime.utcnow)
 
     def __str__(self) -> str:
@@ -268,6 +269,7 @@ class KeyWordsNoMappingModel(Document):
             {
                 "id": str(self.id),
                 "keyword": self.keyword,
+                "conteo_consulta": self.conteo_consulta,
                 "fecha_creacion": str(self.fecha_creacion),
             }
         )
