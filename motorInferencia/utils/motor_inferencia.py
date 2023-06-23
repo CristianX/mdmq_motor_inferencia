@@ -99,7 +99,7 @@ def motor_inferencia(consulta):
                     possible_results[action] = fact["resultado"]
 
     if possible_results:
-        return possible_results
+        return {"found": True, "resultado": possible_results}
 
     else:
         try:
@@ -120,6 +120,7 @@ def motor_inferencia(consulta):
             return f"Error en la asignación de frase: {e}"
 
     return {
+        "found": False,
         "message": "No se ha encontrado ningún resultado para esta búsqueda",
         "url": "https://pam.quito.gob.ec/PAM/Inicio.aspx",
         "contactos": "3952300",
