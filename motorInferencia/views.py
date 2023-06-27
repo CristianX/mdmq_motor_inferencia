@@ -539,3 +539,23 @@ class KeywordNoMapping(APIView):
                 {"mensaje": "Error al eliminar el registro"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    def get(self, request, *args, **kwargs):
+        try:
+            keywords_no_mapping = KeyWordsNoMappingModel.objects().order_by(
+                "-conteo_consulta"
+            )
+            data = [
+                {
+                    "id": str(kw.id),
+                    "keyword": kw.keyword,
+                    "conteo_consulta": kw.conteo_consulta,
+                }
+                for kw in keywords_no_mapping
+            ]
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"message": f"Error al obtener las keywords {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

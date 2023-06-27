@@ -39,4 +39,9 @@ urlpatterns = [
         KeywordNoMapping.as_view(),
         name="keyword_no_mapping",
     ),
+    path(
+        "keyword-no-mapping/",
+        KeywordNoMapping.as_view(),
+        name="get-keywords-no-mapping",
+    ),
 ]
