@@ -273,3 +273,7 @@ class KeyWordsNoMappingModel(Document):
                 "fecha_creacion": str(self.fecha_creacion),
             }
         )
+    
+
+class DataMasivaModel(Document):
+    meta = {'strict': False}

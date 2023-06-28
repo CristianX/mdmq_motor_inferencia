@@ -1,3 +1,4 @@
+import pandas as pd
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import status
@@ -15,6 +16,7 @@ from motorInferencia.models import (
     Contactos,
     BaseLegal,
     KeyWordsNoMappingModel,
+    DataMasivaModel,
 )
 from bson import ObjectId
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
@@ -558,4 +560,29 @@ class KeywordNoMapping(APIView):
             return Response(
                 {"message": f"Error al obtener las keywords {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class LoadCSV(APIView):
+    def post(self, request, *args, **kwargs):
+        csv_file = request.FILES.get("file")
+        if not csv_file:
+            return Response(
+                "No se proporcionó el archivo CSV", status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Convertir archivo csv en dataframe
+            df = pd.read_csv(csv_file)
+
+            # Iterar sobre las filas del dataframe y guardar cada una como documento
+            for _, row in df.iterrows():
+                data = DataMasivaModel(**row.to_dict())
+                data.save()
+
+            return Response("Datos cargados correctamente", status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                f"Error al cargar datos {e}", status=status.HTTP_400_BAD_REQUEST
             )
