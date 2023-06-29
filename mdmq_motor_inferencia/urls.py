@@ -23,6 +23,7 @@ from motorInferencia.views import (
     Keyword,
     Inferencia,
     KeywordNoMapping,
+    LoadCSV,
 )
 
 urlpatterns = [
@@ -44,4 +45,5 @@ urlpatterns = [
         KeywordNoMapping.as_view(),
         name="get-keywords-no-mapping",
     ),
+    path("carga-masiva", LoadCSV.as_view(), name="carga_masiva"),
 ]
