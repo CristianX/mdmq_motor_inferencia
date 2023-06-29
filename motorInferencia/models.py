@@ -10,6 +10,7 @@ from mongoengine import (
     ListField,
     EmbeddedDocumentField,
     EmbeddedDocument,
+    DynamicDocument,
 )
 
 # Create your models here.
@@ -273,7 +274,7 @@ class KeyWordsNoMappingModel(Document):
                 "fecha_creacion": str(self.fecha_creacion),
             }
         )
-    
 
-class DataMasivaModel(Document):
-    meta = {'strict': False}
+
+class DataMasivaModel(DynamicDocument):
+    meta = {"collection": "data_masiva"}

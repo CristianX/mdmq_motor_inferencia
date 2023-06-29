@@ -573,12 +573,14 @@ class LoadCSV(APIView):
 
         try:
             # Convertir archivo csv en dataframe
-            df = pd.read_csv(csv_file)
+            data = pd.read_csv(csv_file, delimiter=";", on_bad_lines="skip")
+            data.fillna("", inplace=True)
+            data_dict = data.to_dict("records")
 
             # Iterar sobre las filas del dataframe y guardar cada una como documento
-            for _, row in df.iterrows():
-                data = DataMasivaModel(**row.to_dict())
-                data.save()
+            for row in data_dict:
+                doc = DataMasivaModel(**row)
+                doc.save()
 
             return Response("Datos cargados correctamente", status=status.HTTP_200_OK)
 
