@@ -95,11 +95,11 @@ from mongoengine import connect
 
 connect(
     db="MDMQ_MOTOR_INFERENCIA",
-    username="",
-    password="",
+    username="root",
+    password="Rm3MpB4vR5AXPL",
     authentication_source="admin",
-    host="localhost",
-    port=27017,
+    host="172.22.4.160",
+    port=6400,
 )
 
 

@@ -21,6 +21,12 @@ from motorInferencia.models import (
 from bson import ObjectId
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
+from bs4 import BeautifulSoup
+from html import unescape
+import unicodedata
+import base64
+import re
+from symspellpy import SymSpell, Verbosity
 
 # from django.forms.models import model_to_dict
 
@@ -573,14 +579,22 @@ class LoadCSV(APIView):
 
         try:
             # Convertir archivo csv en dataframe
-            data = pd.read_csv(csv_file, delimiter=";", on_bad_lines="skip")
+            data = pd.read_csv(csv_file, delimiter="^", on_bad_lines="skip")
             data.fillna("", inplace=True)
             data_dict = data.to_dict("records")
 
             # Iterar sobre las filas del dataframe y guardar cada una como documento
             for row in data_dict:
+                # Limpiando campos
+                for key, value in row.items():
+                    row[key] = limipiar_hmtl(value)
+
                 doc = DataMasivaModel(**row)
                 doc.save()
+
+            # for row in data_dict:
+            #     doc = DataMasivaModel(**row)
+            #     doc.save()
 
             return Response("Datos cargados correctamente", status=status.HTTP_200_OK)
 
@@ -588,3 +602,18 @@ class LoadCSV(APIView):
             return Response(
                 f"Error al cargar datos {e}", status=status.HTTP_400_BAD_REQUEST
             )
+
+
+def limipiar_hmtl(texto):
+    try:
+        if isinstance(texto, str):
+            texto = base64.b64decode(texto, validate=True).decode("utf-8", "ignore")
+            texto = unescape(texto)
+            texto = unicodedata.normalize("NFKD", texto)
+            soup = BeautifulSoup(texto, "html.parser")
+            texto = soup.get_text()
+            texto = texto.strip()
+    except Exception as e:
+        print(f"Error al decodificar {e}")
+        pass
+    return texto
