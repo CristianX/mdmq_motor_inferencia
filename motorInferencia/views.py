@@ -8,11 +8,10 @@ from motorInferencia.models import (
     RuleModel,
     KeywordsModel,
     InferenciaModel,
-    Dependencia,
     Instructivo,
-    Prerrequisito,
+    RequisitosObligatorios,
+    RequisitosEspeciales,
     DirigidoA,
-    Horario,
     Contactos,
     BaseLegal,
     KeyWordsNoMappingModel,
@@ -26,7 +25,6 @@ from html import unescape
 import unicodedata
 import base64
 import re
-from symspellpy import SymSpell, Verbosity
 
 # from django.forms.models import model_to_dict
 
@@ -308,35 +306,44 @@ class Inferencia(APIView):
         body = request.data
 
         try:
-            dependencias_data = body.get("dependencias", [])
-            instructivos_data = body.get("instructivos", [])
-            prerrequisitos_data = body.get("prerrequisitos", [])
             dirigido_a_data = body.get("dirigido_a", [])
-            horario_data = body.get("horario", {})
+            requisitos_obiligatorios_data = body.get("requisitos_obiligatorios", [])
+            requisitos_especiales_data = body.get("requisitos_especiales", [])
+            instructivos_data = body.get("instructivos", [])
             contactos_data = body.get("contactos", [])
             base_legal_data = body.get("base_legal", [])
 
-            dependencias = [Dependencia(**dep) for dep in dependencias_data]
-            instructivos = [Instructivo(**ins) for ins in instructivos_data]
-            prerrequisitos = [Prerrequisito(**pre) for pre in prerrequisitos_data]
             dirigido_a = [DirigidoA(**dirA) for dirA in dirigido_a_data]
-            horario = Horario(**horario_data)
+            requisitos_obligatorios = [
+                RequisitosObligatorios(**pre) for pre in requisitos_obiligatorios_data
+            ]
+            requisitos_opcionales = [
+                RequisitosEspeciales(**pre) for pre in requisitos_especiales_data
+            ]
+            instructivos = [Instructivo(**ins) for ins in instructivos_data]
             contactos = [Contactos(**contact) for contact in contactos_data]
             base_legal = [BaseLegal(**baseLegal) for baseLegal in base_legal_data]
 
             inferencia = InferenciaModel(
-                rule=RuleModel.objects.get(id=ObjectId(body.get("rule"))),
-                descripcion=body.get("descripcion"),
-                dependencias=dependencias,
+                # rule=RuleModel.objects.get(id=ObjectId(rule_id)) if rule_id else None,
+                rule=None
+                if body.get("rule") is None
+                else RuleModel.objects.get(id=ObjectId(body.get("rule"))),
+                nombre=body.get("nombre"),
+                descripcion_general=body.get("descripcion_general"),
                 dirigido_a=dirigido_a,
-                prerrequisitos=prerrequisitos,
+                dirigido_a_descripcion=body.get("dirigido_a_descripcion"),
+                obtencion_tramite=body.get("obtencion_tramite"),
+                requisitos_obligatorios=requisitos_obligatorios,
+                requisitos_opcionales=requisitos_opcionales,
                 instructivos=instructivos,
-                nota=body.get("nota"),
+                canales_atencion=body.get("canales_atencion"),
                 costo_tramite=body.get("costo_tramite"),
-                horario=horario,
+                horario_atencion=body.get("horario_atencion"),
                 vigencia=body.get("vigencia"),
                 contactos=contactos,
                 base_legal=base_legal,
+                url_tramite=body.get("url_tramite"),
                 usuario_creacion=body.get("usuario_creacion"),
                 dispositivo_creacion=body.get("dispositivo_creacion"),
                 usuario_modificacion=body.get("usuario_modificacion"),
@@ -349,17 +356,22 @@ class Inferencia(APIView):
                 (
                     inferencia.rule.rule,
                     {
-                        "descripcion": inferencia.descripcion,
-                        "dependencias": inferencia.dependencias,
+                        "nombre": inferencia.nombre,
+                        "descripcion_general": inferencia.descripcion_general,
                         "dirigido_a": inferencia.dirigido_a,
+                        "dirigido_a_descripcion": inferencia.dirigido_a_descripcion,
+                        "obtencion_tramite": inferencia.obtencion_tramite,
+                        "requisitos_obligatorios": inferencia.requisitos_obligatorios,
+                        "requisitos_opcionales": inferencia.requisitos_opcionales,
                         "prerrequisitos": inferencia.prerrequisitos,
                         "instructivos": inferencia.instructivos,
-                        "nota": inferencia.nota,
+                        "canales_atencion": inferencia.canales_atencion,
                         "costo_tramite": inferencia.costo_tramite,
-                        "horario": inferencia.horario,
+                        "horario_atencion": inferencia.horario_atencion,
                         "vigencia": inferencia.vigencia,
                         "contactos": inferencia.contactos,
                         "base_legal": inferencia.base_legal,
+                        "url_tramite": inferencia.url_tramite,
                     },
                 )
             )
@@ -375,159 +387,159 @@ class Inferencia(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-    def get(self, request, *args, **kwargs):
-        excluded_fields = [
-            "usuario_creacion",
-            "fecha_creacion",
-            "dispositivo_creacion",
-            "usuario_modificacion",
-            "dispositivo_modificacion",
-            "fecha_modificacion",
-        ]
-        if "id" in kwargs:
-            try:
-                inferencia = InferenciaModel.objects(
-                    id=ObjectId(kwargs.get("id"))
-                ).first()
-                if not inferencia:
-                    return Response(
-                        {"message": "Inferencia no encontrada"},
-                        status=status.HTTP_404_NOT_FOUND,
-                    )
+    # def get(self, request, *args, **kwargs):
+    #     excluded_fields = [
+    #         "usuario_creacion",
+    #         "fecha_creacion",
+    #         "dispositivo_creacion",
+    #         "usuario_modificacion",
+    #         "dispositivo_modificacion",
+    #         "fecha_modificacion",
+    #     ]
+    #     if "id" in kwargs:
+    #         try:
+    #             inferencia = InferenciaModel.objects(
+    #                 id=ObjectId(kwargs.get("id"))
+    #             ).first()
+    #             if not inferencia:
+    #                 return Response(
+    #                     {"message": "Inferencia no encontrada"},
+    #                     status=status.HTTP_404_NOT_FOUND,
+    #                 )
 
-                data = inferencia.to_mongo().to_dict()
-                data["_id"] = str(data["_id"])
-                data["rule"] = str(data["rule"])
+    #             data = inferencia.to_mongo().to_dict()
+    #             data["_id"] = str(data["_id"])
+    #             data["rule"] = str(data["rule"])
 
-                for field in excluded_fields:
-                    if field in data:
-                        del data[field]
+    #             for field in excluded_fields:
+    #                 if field in data:
+    #                     del data[field]
 
-                return Response(data, status=status.HTTP_200_OK)
+    #             return Response(data, status=status.HTTP_200_OK)
 
-            except Exception as e:
-                return Response({"message": f"Error al obtener la inferencia: {e}"})
+    #         except Exception as e:
+    #             return Response({"message": f"Error al obtener la inferencia: {e}"})
 
-        else:
-            try:
-                inferencias = InferenciaModel.objects()
-                data = []
+    #     else:
+    #         try:
+    #             inferencias = InferenciaModel.objects()
+    #             data = []
 
-                for inf in inferencias:
-                    inferencia_dict = inf.to_mongo().to_dict()
-                    inferencia_dict["_id"] = str(inferencia_dict["_id"])
-                    inferencia_dict["rule"] = str(inferencia_dict["rule"])
-                    for field in excluded_fields:
-                        if field in inferencia_dict:
-                            del inferencia_dict[field]
-                    data.append(inferencia_dict)
+    #             for inf in inferencias:
+    #                 inferencia_dict = inf.to_mongo().to_dict()
+    #                 inferencia_dict["_id"] = str(inferencia_dict["_id"])
+    #                 inferencia_dict["rule"] = str(inferencia_dict["rule"])
+    #                 for field in excluded_fields:
+    #                     if field in inferencia_dict:
+    #                         del inferencia_dict[field]
+    #                 data.append(inferencia_dict)
 
-                return Response(data, status=status.HTTP_200_OK)
-            except Exception as e:
-                return Response(
-                    {"message": f"Error al obtener las inferencias: {e}"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+    #             return Response(data, status=status.HTTP_200_OK)
+    #         except Exception as e:
+    #             return Response(
+    #                 {"message": f"Error al obtener las inferencias: {e}"},
+    #                 status=status.HTTP_400_BAD_REQUEST,
+    #             )
 
-    def put(self, request, *args, **kwargs):
-        inferencia = None
-        try:
-            inferencia = InferenciaModel.objects(id=ObjectId(kwargs.get("id"))).first()
+    # def put(self, request, *args, **kwargs):
+    #     inferencia = None
+    #     try:
+    #         inferencia = InferenciaModel.objects(id=ObjectId(kwargs.get("id"))).first()
 
-            if not inferencia:
-                return Response(
-                    {"message": "Inferencia no encontrada"},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
+    #         if not inferencia:
+    #             return Response(
+    #                 {"message": "Inferencia no encontrada"},
+    #                 status=status.HTTP_404_NOT_FOUND,
+    #             )
 
-            body = request.data
+    #         body = request.data
 
-            if body.get("rule"):
-                existing_rule = (
-                    RuleModel.objects(id=ObjectId(body.get("rule"))).first().lower()
-                )
-                if not existing_rule:
-                    # existing_keyword = KeywordsModel.objects(
-                    # keyword=body.get("keyword").lower()
-                    # ).first()
-                    Response(
-                        {"message": "Regla no existente"},
-                        status=status.HTTP_404_NOT_FOUND,
-                    )
-                # if existing_keyword and (existing_keyword.id != keyword.id):
-                if existing_rule and (existing_rule.id != inferencia.rule.id):
-                    return Response(
-                        {
-                            "message": "Esa regla ya se encuentra asignada a una inferencia"
-                        },
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-                inferencia.rule = body.get("rule").lower()
+    #         if body.get("rule"):
+    #             existing_rule = (
+    #                 RuleModel.objects(id=ObjectId(body.get("rule"))).first().lower()
+    #             )
+    #             if not existing_rule:
+    #                 # existing_keyword = KeywordsModel.objects(
+    #                 # keyword=body.get("keyword").lower()
+    #                 # ).first()
+    #                 Response(
+    #                     {"message": "Regla no existente"},
+    #                     status=status.HTTP_404_NOT_FOUND,
+    #                 )
+    #             # if existing_keyword and (existing_keyword.id != keyword.id):
+    #             if existing_rule and (existing_rule.id != inferencia.rule.id):
+    #                 return Response(
+    #                     {
+    #                         "message": "Esa regla ya se encuentra asignada a una inferencia"
+    #                     },
+    #                     status=status.HTTP_400_BAD_REQUEST,
+    #                 )
+    #             inferencia.rule = body.get("rule").lower()
 
-            dependencias_data = body.get("dependencias", [])
-            instructivos_data = body.get("instructivos", [])
-            prerrequisitos_data = body.get("prerrequisitos", [])
-            dirigido_a_data = body.get("dirigido_a", [])
-            horario_data = body.get("horario", {})
-            contactos_data = body.get("contactos", [])
-            base_legal_data = body.get("base_legal", [])
+    #         dependencias_data = body.get("dependencias", [])
+    #         instructivos_data = body.get("instructivos", [])
+    #         prerrequisitos_data = body.get("prerrequisitos", [])
+    #         dirigido_a_data = body.get("dirigido_a", [])
+    #         horario_data = body.get("horario", {})
+    #         contactos_data = body.get("contactos", [])
+    #         base_legal_data = body.get("base_legal", [])
 
-            dependencias = [Dependencia(**dep) for dep in dependencias_data]
-            instructivos = [Instructivo(**ins) for ins in instructivos_data]
-            prerrequisitos = [Prerrequisito(**pre) for pre in prerrequisitos_data]
-            dirigido_a = [DirigidoA(**dirA) for dirA in dirigido_a_data]
-            horario = Horario(**horario_data)
-            contactos = [Contactos(**contact) for contact in contactos_data]
-            base_legal = [BaseLegal(**baseLegal) for baseLegal in base_legal_data]
+    #         dependencias = [Dependencia(**dep) for dep in dependencias_data]
+    #         instructivos = [Instructivo(**ins) for ins in instructivos_data]
+    #         prerrequisitos = [Prerrequisito(**pre) for pre in prerrequisitos_data]
+    #         dirigido_a = [DirigidoA(**dirA) for dirA in dirigido_a_data]
+    #         horario = Horario(**horario_data)
+    #         contactos = [Contactos(**contact) for contact in contactos_data]
+    #         base_legal = [BaseLegal(**baseLegal) for baseLegal in base_legal_data]
 
-            inferencia.descripcion = body.get("descripcion")
-            inferencia.dependencias = dependencias
-            inferencia.dirigido_a = dirigido_a
-            inferencia.prerrequisitos = prerrequisitos
-            inferencia.instructivos = instructivos
-            inferencia.nota = body.get("nota")
-            inferencia.costo_tramite = body.get("costo_tramite")
-            inferencia.horario = horario
-            inferencia.vigencia = body.get("vigencia")
-            inferencia.contactos = contactos
-            inferencia.base_legal = base_legal
-            inferencia.usuario_modificacion = body.get("usuario_modificacion")
-            inferencia.dispositivo_modificacion = body.get("dispositivo_modificacion")
+    #         inferencia.descripcion = body.get("descripcion")
+    #         inferencia.dependencias = dependencias
+    #         inferencia.dirigido_a = dirigido_a
+    #         inferencia.prerrequisitos = prerrequisitos
+    #         inferencia.instructivos = instructivos
+    #         inferencia.nota = body.get("nota")
+    #         inferencia.costo_tramite = body.get("costo_tramite")
+    #         inferencia.horario = horario
+    #         inferencia.vigencia = body.get("vigencia")
+    #         inferencia.contactos = contactos
+    #         inferencia.base_legal = base_legal
+    #         inferencia.usuario_modificacion = body.get("usuario_modificacion")
+    #         inferencia.dispositivo_modificacion = body.get("dispositivo_modificacion")
 
-            DataSetResultadoInferencia.refresh_dataset()
+    #         DataSetResultadoInferencia.refresh_dataset()
 
-            return Response(
-                {"message": "Inferencia actualizada exitosamente"},
-                status=status.HTTP_200_OK,
-            )
-        except Exception as e:
-            return Response(
-                {"message": f"Error al actualizar la inferencia {e}"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+    #         return Response(
+    #             {"message": "Inferencia actualizada exitosamente"},
+    #             status=status.HTTP_200_OK,
+    #         )
+    #     except Exception as e:
+    #         return Response(
+    #             {"message": f"Error al actualizar la inferencia {e}"},
+    #             status=status.HTTP_400_BAD_REQUEST,
+    #         )
 
-    def delete(self, request, *args, **kwargs):
-        inferencia = None
-        try:
-            inferencia = InferenciaModel.objects(id=ObjectId(kwargs.get("id"))).first()
-            if not inferencia:
-                return Response(
-                    {"message": "Inferencia no encontrada"},
-                    status=status.HTTP_404_NOT_FOUND,
-                )
-            inferencia.delete()
+    # def delete(self, request, *args, **kwargs):
+    #     inferencia = None
+    #     try:
+    #         inferencia = InferenciaModel.objects(id=ObjectId(kwargs.get("id"))).first()
+    #         if not inferencia:
+    #             return Response(
+    #                 {"message": "Inferencia no encontrada"},
+    #                 status=status.HTTP_404_NOT_FOUND,
+    #             )
+    #         inferencia.delete()
 
-            DataSetResultadoInferencia.refresh_dataset()
+    #         DataSetResultadoInferencia.refresh_dataset()
 
-            return Response(
-                {"message": "Inferencia Eliminada"}, status=status.HTTP_204_NO_CONTENT
-            )
+    #         return Response(
+    #             {"message": "Inferencia Eliminada"}, status=status.HTTP_204_NO_CONTENT
+    #         )
 
-        except Exception as e:
-            return Response(
-                {"message": f"Error en eliminar la inferencia {e}"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+    #     except Exception as e:
+    #         return Response(
+    #             {"message": f"Error en eliminar la inferencia {e}"},
+    #             status=status.HTTP_400_BAD_REQUEST,
+    #         )
 
 
 class KeywordNoMapping(APIView):

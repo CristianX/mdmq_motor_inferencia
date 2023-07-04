@@ -87,13 +87,6 @@ KeywordsModel.ensure_indexes()
 # TODO: Está permitiendo guardar campos nulos o en blanco
 
 
-class Dependencia(EmbeddedDocument):
-    nombre = StringField(max_length=255)
-
-    def to_dict(self):
-        return {"nombre": self.nombre}
-
-
 class Instructivo(EmbeddedDocument):
     numero = IntField()
     descripcion = StringField(max_length=500)
@@ -103,17 +96,28 @@ class Instructivo(EmbeddedDocument):
         return {"numero": self.numero, "descripcion": self.descripcion, "url": self.url}
 
 
-class Prerrequisito(EmbeddedDocument):
+class RequisitosObligatorios(EmbeddedDocument):
     numero = IntField()
     descripcion = StringField(max_length=500)
-    tipo_requisito = StringField(max_length=255)
     url = URLField()
 
     def to_dict(self):
         return {
             "numero": self.numero,
             "descripcion": self.descripcion,
-            "tipo_requisito": self.tipo_requisito,
+            "url": self.url,
+        }
+
+
+class RequisitosEspeciales(EmbeddedDocument):
+    numero = IntField()
+    descripcion = StringField(max_length=500)
+    url = URLField()
+
+    def to_dict(self):
+        return {
+            "numero": self.numero,
+            "descripcion": self.descripcion,
             "url": self.url,
         }
 
@@ -121,24 +125,11 @@ class Prerrequisito(EmbeddedDocument):
 class DirigidoA(EmbeddedDocument):
     tipo_persona = StringField(max_length=50)
     nacionalidad = StringField(max_length=255)
-    descripcion = StringField(max_length=1024)
 
     def to_dict(self):
         return {
             "tipo_persona": self.tipo_persona,
             "nacionalidad": self.nacionalidad,
-            "descripcion": self.descripcion,
-        }
-
-
-class Horario(EmbeddedDocument):
-    rango = StringField(max_length=255)
-    descripcion_respuesta = StringField(max_length=1024)
-
-    def to_dict(self):
-        return {
-            "rango": self.rango,
-            "descripcion_respuesta": self.descripcion_respuesta,
         }
 
 
@@ -156,7 +147,7 @@ class Contactos(EmbeddedDocument):
 
 
 class BaseLegal(EmbeddedDocument):
-    nombre = StringField(max_length=500)
+    nombre = StringField(max_length=2048)
     url = URLField()
 
     def to_dict(self):
@@ -164,18 +155,22 @@ class BaseLegal(EmbeddedDocument):
 
 
 class InferenciaModel(Document):
-    rule = ReferenceField(RuleModel, reverse_delete_rule=2)
-    descripcion = StringField(max_length=500)
-    dependencias = ListField(EmbeddedDocumentField(Dependencia))
+    rule = ReferenceField(RuleModel, reverse_delete_rule=2, required=False)
+    nombre = StringField(max_length=500)
+    descripcion_general = StringField(max_length=2048)
     dirigido_a = ListField(EmbeddedDocumentField(DirigidoA))
-    prerrequisitos = ListField(EmbeddedDocumentField(Prerrequisito))
+    dirigido_a_descripcion = StringField(max_length=1024)
+    obtencion_tramite = StringField(max_length=200)
+    requisitos_obligatorios = ListField(EmbeddedDocumentField(RequisitosObligatorios))
+    requisitos_opcionales = ListField(EmbeddedDocumentField(RequisitosEspeciales))
     instructivos = ListField(EmbeddedDocumentField(Instructivo))
-    nota = StringField(max_length=1024)
+    canales_atencion = StringField(max_length=500)
     costo_tramite = StringField(max_length=255)
-    horario = EmbeddedDocumentField(Horario)
+    horario_atencion = StringField(max_length=2048)
     vigencia = StringField(max_length=500)
     contactos = ListField(EmbeddedDocumentField(Contactos))
     base_legal = ListField(EmbeddedDocumentField(BaseLegal))
+    url_tramite = URLField()
     fecha_creacion = DateTimeField(default=datetime.utcnow)
     usuario_creacion = StringField(max_length=150, blank=False, null=False)
     dispositivo_creacion = StringField(max_length=150, blank=False, null=False)
@@ -193,20 +188,20 @@ class InferenciaModel(Document):
         return str(
             {
                 "rule": self.rule,
-                "dependencias": [
-                    str({"nombre": dep.nombre}) for dep in self.dependencias
-                ],
+                "nombre": self.nombre,
+                "descripcion_general": self.descripcion_general,
                 "dirigido_a": [
                     str(
                         {
                             "tipo_persona": dir.tipo_persona,
                             "nacionalidad": dir.nacionalidad,
-                            "descripcion": dir.descripcion,
                         }
                     )
                     for dir in self.dirigido_a
                 ],
-                "prerrequisitos": [
+                "dirigido_a_descripcion": self.dirigido_a_descripcion,
+                "obtencion_tramite": self.obtencion_tramite,
+                "requisitos_obligatorios": [
                     str(
                         {
                             "numero": pre.numero,
@@ -215,7 +210,18 @@ class InferenciaModel(Document):
                             "url": pre.url,
                         }
                     )
-                    for pre in self.prerrequisitos
+                    for pre in self.requisitos_obligatorios
+                ],
+                "requisitos_opcionales": [
+                    str(
+                        {
+                            "numero": pre.numero,
+                            "descripcion": pre.descripcion,
+                            "tipo_requisito": pre.tipo_requisito,
+                            "url": pre.url,
+                        }
+                    )
+                    for pre in self.requisitos_opcionales
                 ],
                 "instructivos": [
                     str(
@@ -227,14 +233,9 @@ class InferenciaModel(Document):
                     )
                     for ins in self.instructivos
                 ],
-                "nota": self.nota,
+                "canales_atencion": self.canales_atencion,
                 "costo_tramite": self.costo_tramite,
-                "horario": str(
-                    {
-                        "rango": self.horario.rango,
-                        "descripcion_respuesta": self.horario.descripcion_respuesta,
-                    }
-                ),
+                "horario_atencion": self.horario_atencion,
                 "vigencia": self.vigencia,
                 "contactos": [
                     str(
@@ -250,6 +251,7 @@ class InferenciaModel(Document):
                     str({"nombre": base.nombre, "url": base.url})
                     for base in self.base_legal
                 ],
+                "url_tramite": self.url_tramite,
                 "fecha_creacion": str(self.fecha_creacion),
                 "usuario_creacion": self.usuario_creacion,
                 "dispositivo_creacion": self.dispositivo_creacion,
