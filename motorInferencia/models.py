@@ -18,6 +18,7 @@ from mongoengine import (
 
 class RuleModel(Document):
     rule = StringField(max_length=500, required=True, unique=True)
+    estado = StringField(max_length=3, required=True)
     fecha_creacion = DateTimeField(default=datetime.utcnow)
     usuario_creacion = StringField(max_length=150, required=True)
     dispositivo_creacion = StringField(max_length=150, required=True)
@@ -87,93 +88,18 @@ KeywordsModel.ensure_indexes()
 # TODO: Está permitiendo guardar campos nulos o en blanco
 
 
-class Instructivo(EmbeddedDocument):
-    numero = IntField()
-    descripcion = StringField(max_length=500)
-    url = URLField()
+class InferenciaModel(DynamicDocument):
+    rule = ReferenceField(RuleModel, reverse_delete_rule=2, required=True)
 
-    def to_dict(self):
-        return {"numero": self.numero, "descripcion": self.descripcion, "url": self.url}
-
-
-class RequisitosObligatorios(EmbeddedDocument):
-    numero = IntField()
-    descripcion = StringField(max_length=500)
-    url = URLField()
-
-    def to_dict(self):
-        return {
-            "numero": self.numero,
-            "descripcion": self.descripcion,
-            "url": self.url,
-        }
-
-
-class RequisitosEspeciales(EmbeddedDocument):
-    numero = IntField()
-    descripcion = StringField(max_length=500)
-    url = URLField()
-
-    def to_dict(self):
-        return {
-            "numero": self.numero,
-            "descripcion": self.descripcion,
-            "url": self.url,
-        }
-
-
-class DirigidoA(EmbeddedDocument):
-    tipo_persona = StringField(max_length=50)
-    nacionalidad = StringField(max_length=255)
-
-    def to_dict(self):
-        return {
-            "tipo_persona": self.tipo_persona,
-            "nacionalidad": self.nacionalidad,
-        }
-
-
-class Contactos(EmbeddedDocument):
-    contacto = StringField(max_length=500)
-    email = StringField(max_length=200)
-    telefono = StringField(max_length=300)
-
-    def to_dict(self):
-        return {
-            "contacto": self.contacto,
-            "email": self.email,
-            "telefono": self.telefono,
-        }
-
-
-class BaseLegal(EmbeddedDocument):
-    nombre = StringField(max_length=2048)
-    url = URLField()
-
-    def to_dict(self):
-        return {"nombre": self.nombre, "url": self.url}
-
-
-class InferenciaModel(Document):
-    rule = ReferenceField(RuleModel, reverse_delete_rule=2, required=False)
-    nombre = StringField(max_length=500)
-    descripcion_general = StringField(max_length=2048)
-    dirigido_a = ListField(EmbeddedDocumentField(DirigidoA))
-    dirigido_a_descripcion = StringField(max_length=1024)
-    obtencion_tramite = StringField(max_length=200)
-    requisitos_obligatorios = ListField(EmbeddedDocumentField(RequisitosObligatorios))
-    requisitos_opcionales = ListField(EmbeddedDocumentField(RequisitosEspeciales))
-    instructivos = ListField(EmbeddedDocumentField(Instructivo))
-    canales_atencion = StringField(max_length=500)
-    costo_tramite = StringField(max_length=255)
-    horario_atencion = StringField(max_length=2048)
-    vigencia = StringField(max_length=500)
-    contactos = ListField(EmbeddedDocumentField(Contactos))
-    base_legal = ListField(EmbeddedDocumentField(BaseLegal))
-    url_tramite = URLField()
+    estado = StringField(max_length=3, required=True)
+    categoria = StringField(max_length=20)
     fecha_creacion = DateTimeField(default=datetime.utcnow)
-    usuario_creacion = StringField(max_length=150, blank=False, null=False)
-    dispositivo_creacion = StringField(max_length=150, blank=False, null=False)
+    usuario_creacion = StringField(
+        max_length=150, blank=False, null=False, required=True
+    )
+    dispositivo_creacion = StringField(
+        max_length=150, blank=False, null=False, required=True
+    )
     fecha_modificacion = DateTimeField(default=datetime.utcnow)
     usuario_modificacion = StringField(max_length=150)
     dispositivo_modificacion = StringField(max_length=150)
@@ -184,82 +110,8 @@ class InferenciaModel(Document):
         self.fecha_modificacion = datetime.utcnow()
         return super(InferenciaModel, self).save(*args, **kwargs)
 
-    def __str__(self) -> str:
-        return str(
-            {
-                "rule": self.rule,
-                "nombre": self.nombre,
-                "descripcion_general": self.descripcion_general,
-                "dirigido_a": [
-                    str(
-                        {
-                            "tipo_persona": dir.tipo_persona,
-                            "nacionalidad": dir.nacionalidad,
-                        }
-                    )
-                    for dir in self.dirigido_a
-                ],
-                "dirigido_a_descripcion": self.dirigido_a_descripcion,
-                "obtencion_tramite": self.obtencion_tramite,
-                "requisitos_obligatorios": [
-                    str(
-                        {
-                            "numero": pre.numero,
-                            "descripcion": pre.descripcion,
-                            "tipo_requisito": pre.tipo_requisito,
-                            "url": pre.url,
-                        }
-                    )
-                    for pre in self.requisitos_obligatorios
-                ],
-                "requisitos_opcionales": [
-                    str(
-                        {
-                            "numero": pre.numero,
-                            "descripcion": pre.descripcion,
-                            "tipo_requisito": pre.tipo_requisito,
-                            "url": pre.url,
-                        }
-                    )
-                    for pre in self.requisitos_opcionales
-                ],
-                "instructivos": [
-                    str(
-                        {
-                            "numero": ins.numero,
-                            "descripcion": ins.descripcion,
-                            "url": ins.url,
-                        }
-                    )
-                    for ins in self.instructivos
-                ],
-                "canales_atencion": self.canales_atencion,
-                "costo_tramite": self.costo_tramite,
-                "horario_atencion": self.horario_atencion,
-                "vigencia": self.vigencia,
-                "contactos": [
-                    str(
-                        {
-                            "contacto": con.contacto,
-                            "email": con.email,
-                            "telefono": con.telefono,
-                        }
-                    )
-                    for con in self.contactos
-                ],
-                "base_legal": [
-                    str({"nombre": base.nombre, "url": base.url})
-                    for base in self.base_legal
-                ],
-                "url_tramite": self.url_tramite,
-                "fecha_creacion": str(self.fecha_creacion),
-                "usuario_creacion": self.usuario_creacion,
-                "dispositivo_creacion": self.dispositivo_creacion,
-                "fecha_modificacion": str(self.fecha_modificacion),
-                "usuario_modificacion": self.usuario_modificacion,
-                "dispositivo_modificacion": self.dispositivo_modificacion,
-            }
-        )
+
+InferenciaModel.ensure_indexes()
 
 
 class KeyWordsNoMappingModel(Document):
@@ -276,7 +128,3 @@ class KeyWordsNoMappingModel(Document):
                 "fecha_creacion": str(self.fecha_creacion),
             }
         )
-
-
-class DataMasivaModel(DynamicDocument):
-    meta = {"collection": "data_masiva"}

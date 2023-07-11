@@ -1,7 +1,6 @@
 from experta import *
 import difflib
 from decouple import config
-from django.conf import settings
 from mongoengine import EmbeddedDocument
 from .dataset_motor_inferencia import DataSetMotorInferencia
 from .data_resultado_inferencia import DataSetResultadoInferencia
@@ -126,24 +125,3 @@ def motor_inferencia(consulta):
         "contactos": "3952300",
         "ext": "20127",
     }
-
-    # if matched_action and max_similarity >= float(config("PORCENTAJE_TOLERANCIA")):
-    #     engine.reset()
-    #     engine.declare(Command(action=matched_action))
-    #     engine.run()
-    #     for fact_key in engine.facts:
-    #         fact = engine.facts[fact_key]
-    #         if isinstance(fact, Resultado):
-    #             return fact["resultado"]
-
-    # else:
-    #     try:
-    #         keywords_no_mapping = KeyWordsNoMappingModel(
-    #             keyword=consulta,
-    #         )
-
-    #         keywords_no_mapping.save()
-    #     except:
-    #         return "Error en la asignación de frase"
-
-    # return "No se encontró respuesta para su solicitud, dirigirse a la url https://pam.quito.gob.ec/PAM/Inicio.aspx, al apartado de la parte inferior (Contactos)"

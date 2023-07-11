@@ -1,4 +1,6 @@
 from django.core.cache import cache
+from decouple import config
+from .stl_service import STLService
 
 
 class DataSetResultadoInferencia:
@@ -43,21 +45,19 @@ class DataSetResultadoInferencia:
             (
                 inferencia_resultado.rule.rule,
                 {
-                    "descripcion": inferencia_resultado.descripcion,
-                    "dependencias": inferencia_resultado.dependencias,
-                    "dirigido_a": inferencia_resultado.dirigido_a,
-                    "prerrequisitos": inferencia_resultado.prerrequisitos,
-                    "instructivos": inferencia_resultado.instructivos,
-                    "nota": inferencia_resultado.nota,
-                    "costo_tramite": inferencia_resultado.costo_tramite,
-                    "horario": inferencia_resultado.horario,
-                    "vigencia": inferencia_resultado.vigencia,
-                    "contactos": inferencia_resultado.contactos,
-                    "base_legal": inferencia_resultado.base_legal,
+                    "categoria": inferencia_resultado.categoria,
+                    "nombre_tramite": inferencia_resultado.nombre_tramite,
+                    "dependencia_tramite": inferencia_resultado.dependencia_tramite,
+                    "url_stl": config("URL_STL") + inferencia_resultado.url_stl,
+                    "url_tramite": STLService.consumo_tramite_soap(
+                        inferencia_resultado.id_tramite
+                    ),
+                    "estado": inferencia_resultado.estado,
                 },
             )
             for inferencia_resultado in inferenciasResultadoResponse
         ]
+
         return data_resultado_inferencia
 
     @classmethod
