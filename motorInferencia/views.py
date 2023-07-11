@@ -350,7 +350,7 @@ class Inferencia(APIView):
                         if k not in excluded_fields
                     }
                     inf_dict["url_stl"] = config("URL_STL") + inf_dict["url_stl"]
-                    inf_dict["url_tramite"] = consumo_tramite_soap(
+                    inf_dict["url_tramite"] = STLService.consumo_tramite_soap(
                         inf_dict["id_tramite"]
                     )
                     inferencias_list.append(inf_dict)
