@@ -94,12 +94,12 @@ WSGI_APPLICATION = "mdmq_motor_inferencia.wsgi.application"
 from mongoengine import connect
 
 connect(
-    db="MDMQ_MOTOR_INFERENCIA",
-    username="root",
-    password="Rm3MpB4vR5AXPL",
-    authentication_source="admin",
-    host="172.22.4.160",
-    port=6400,
+    db=config("BDD_NAME"),
+    username=config("BDD_USERNAME"),
+    password=config("BDD_PASSWORD"),
+    authentication_source=config("BDD_AUTHENTICATION_SOURCE"),
+    host=config("BDD_HOST"),
+    port=int(config("BDD_PORT")),
 )
 
 
