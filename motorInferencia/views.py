@@ -52,6 +52,7 @@ class Rule(APIView):
                 dispositivo_creacion=body.get("dispositivo_creacion"),
                 usuario_modificacion=body.get("usuario_modificacion"),
                 dispositivo_modificacion=body.get("dispositivo_modificacion"),
+                estado=body.get("estado"),
             )
             rule.save()
             return Response(

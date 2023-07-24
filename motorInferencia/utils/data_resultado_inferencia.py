@@ -15,7 +15,7 @@ class DataSetResultadoInferencia:
         # Si la instancia no existe, la creamos y la guardamos en la caché.
         if instance is None:
             instance = cls._create_inferencia_data()
-            cache.set(cls._instance_key, instance)
+            cache.set(cls._instance_key, instance, timeout=None)
 
         return instance
 
@@ -28,7 +28,7 @@ class DataSetResultadoInferencia:
         instance.append(new_inferencia_data)
 
         # Actualizar la instancia en la caché
-        cache.set(cls._instance_key, instance)
+        cache.set(cls._instance_key, instance, timeout=None)
 
         return instance
 
@@ -55,6 +55,17 @@ class DataSetResultadoInferencia:
                     "estado": inferencia_resultado.estado,
                 },
             )
+            if inferencia_resultado.categoria == "informacion"
+            else (
+                inferencia_resultado.rule.rule,
+                {
+                    "categoria": inferencia_resultado.categoria,
+                    "nombre_tramite": inferencia_resultado.nombre_tramite,
+                    "dependencia_tramite": inferencia_resultado.dependencia_tramite,
+                    "url_pasarela_pago": config("PASARELA_PAGO"),
+                    "estado": inferencia_resultado.estado,
+                },
+            )
             for inferencia_resultado in inferenciasResultadoResponse
         ]
 
@@ -73,7 +84,7 @@ class DataSetResultadoInferencia:
         last_update = cache.get(cls._last_update_key)
 
         if last_update is None or last_modification > last_update:
-            cache.set(cls._last_update_key, last_modification)
+            cache.set(cls._last_update_key, last_modification, timeout=None)
             return True
 
         return False
@@ -84,5 +95,5 @@ class DataSetResultadoInferencia:
         cache.delete(cls._instance_key)
 
         instance = cls._create_inferencia_data()
-        cache.set(cls._instance_key, instance)
+        cache.set(cls._instance_key, instance, timeout=None)
         return instance

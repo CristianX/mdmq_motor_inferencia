@@ -13,7 +13,7 @@ class DataSetMotorInferencia:
         # Si la instancia no existe, la creamos y la guardamos en la caché.
         if instance is None:
             instance = cls._create_keywords_data()
-            cache.set(cls._instance_key, instance)
+            cache.set(cls._instance_key, instance, timeout=None)
 
         return instance
 
@@ -26,7 +26,7 @@ class DataSetMotorInferencia:
         instance.append(new_keyword_data)
 
         # Actualizar la instancia en la caché
-        cache.set(cls._instance_key, instance)
+        cache.set(cls._instance_key, instance, timeout=None)
 
         return instance
 
@@ -57,7 +57,7 @@ class DataSetMotorInferencia:
         last_update = cache.get(cls._last_update_key)
 
         if last_update is None or last_modification > last_update:
-            cache.set(cls._last_update_key, last_modification)
+            cache.set(cls._last_update_key, last_modification, timeout=None)
             return True
 
         return False
@@ -68,5 +68,5 @@ class DataSetMotorInferencia:
         cache.delete(cls._instance_key)
 
         instance = cls._create_keywords_data()
-        cache.set(cls._instance_key, instance)
+        cache.set(cls._instance_key, instance, timeout=None)
         return instance
