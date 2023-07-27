@@ -56,7 +56,12 @@ class Rule(APIView):
             )
             rule.save()
             return Response(
-                {"message": "Regla creada exitosamente"},
+                {
+                    "message": "Regla creada exitosamente",
+                    "regla_id": str(rule.id),
+                    "regla": rule.rule,
+                    "estado_regla": rule.estado,
+                },
                 status=status.HTTP_201_CREATED,
             )
 
@@ -305,6 +310,7 @@ class Inferencia(APIView):
             "dispositivo_modificacion",
             "fecha_modificacion",
         ]
+
         if "id" in kwargs:
             try:
                 inferencia = InferenciaModel.objects(
@@ -323,17 +329,18 @@ class Inferencia(APIView):
                     if k not in excluded_fields
                 }
 
-                inf_dict["url_stl"] = config("URL_STL") + inf_dict["url_stl"]
-                # inf_dict["url_tramite"] = consumo_tramite_soap(inf_dict["id_tramite"])
-                inf_dict["url_tramite"] = STLService.consumo_tramite_soap(
-                    inf_dict["id_tramite"]
-                )
+                if inf_dict["categoria"] == "informacion":
+                    inf_dict["url_stl"] = config("URL_STL") + inf_dict["url_stl"]
+                    # inf_dict["url_tramite"] = consumo_tramite_soap(inf_dict["id_tramite"])
+                    inf_dict["url_tramite"] = STLService.consumo_tramite_soap(
+                        inf_dict["id_tramite"]
+                    )
+                else:
+                    inf_dict["url_pasarela_pago"] = config("PASARELA_PAGO")
 
                 # return Response(inf_dict, status=status.HTTP_200_OK)
                 # TODO: implementación para pruebas
-                return Response(
-                    {"found": True, "resultado": inf_dict}, status=status.HTTP_200_OK
-                )
+                return Response(inf_dict, status=status.HTTP_200_OK)
 
             except Exception as e:
                 return Response({"message": f"Error al obtener la inferencia: {e}"})
@@ -350,14 +357,18 @@ class Inferencia(APIView):
                         for k, v in inf_dict.items()
                         if k not in excluded_fields
                     }
-                    inf_dict["url_stl"] = config("URL_STL") + inf_dict["url_stl"]
-                    inf_dict["url_tramite"] = STLService.consumo_tramite_soap(
-                        inf_dict["id_tramite"]
-                    )
-                    inferencias_list.append(inf_dict)
+                    if inf_dict["categoria"] == "informacion":
+                        inf_dict["url_stl"] = config("URL_STL") + inf_dict["url_stl"]
+                        inf_dict["url_tramite"] = STLService.consumo_tramite_soap(
+                            inf_dict["id_tramite"]
+                        )
+                        inferencias_list.append(inf_dict)
+                    else:
+                        inf_dict["url_pasarela_pago"] = config("PASARELA_PAGO")
+                        inferencias_list.append(inf_dict)
 
                 return Response(
-                    {"found": True, "resultado": inferencias_list},
+                    inferencias_list,
                     status=status.HTTP_200_OK,
                 )
 
