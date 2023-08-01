@@ -387,7 +387,10 @@ class Inferencia(APIView):
                 body["rule"] = RuleModel.objects.get(id=ObjectId(rule_id))
             inferencia = InferenciaModel(**body)
             inferencia.save()
-            return Response("Datos cargados correctamente", status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Inferencia Creada Correctamente"},
+                status=status.HTTP_200_OK,
+            )
         except Exception as e:
             return Response(
                 f"Error al cargar datos {e}", status=status.HTTP_400_BAD_REQUEST
@@ -470,13 +473,13 @@ class KeywordNoMapping(APIView):
             )
             keyword_no_mapping.delete()
             return Response(
-                {"mensaje": "Registro eliminado correctamente"},
+                {"message": "Registro eliminado correctamente"},
                 status=status.HTTP_202_ACCEPTED,
             )
 
         except:
             return Response(
-                {"mensaje": "Error al eliminar el registro"},
+                {"message": "Error al eliminar el registro"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -499,18 +502,3 @@ class KeywordNoMapping(APIView):
                 {"message": f"Error al obtener las keywords {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-
-def limipiar_hmtl(texto):
-    try:
-        if isinstance(texto, str):
-            texto = base64.b64decode(texto, validate=True).decode("utf-8", "ignore")
-            texto = unescape(texto)
-            texto = unicodedata.normalize("NFKD", texto)
-            soup = BeautifulSoup(texto, "html.parser")
-            texto = soup.get_text()
-            texto = texto.strip()
-    except Exception as e:
-        print(f"Error al decodificar {e}")
-        pass
-    return texto
