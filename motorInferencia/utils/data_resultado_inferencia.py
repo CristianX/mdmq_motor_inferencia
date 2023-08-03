@@ -1,6 +1,6 @@
 from django.core.cache import cache
 from decouple import config
-from .stl_service import STLService
+from .services.stl_service import STLService
 
 
 class DataSetResultadoInferencia:

@@ -11,23 +11,30 @@ from motorInferencia.models import (
 from bson import ObjectId
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
-from .utils.stl_service import STLService
-from bs4 import BeautifulSoup
-from html import unescape
-import unicodedata
-import base64
-from zeep import Client
+from .utils.services.stl_service import STLService
+from .utils.services.cmi_service import CMIService
 from decouple import config
 
 # from django.forms.models import model_to_dict
 
+cmi_service = CMIService()
+
 
 class InferirConsulta(APIView):
     def post(self, request, *args, **kwargs):
-        consulta = request.data
+        body = request.data
 
         try:
-            response_motor_inferencia = motor_inferencia(consulta=consulta["mensaje"])
+            response_motor_inferencia = motor_inferencia(consulta=body.get("mensaje"))
+
+            # Enviando datos a CMI
+            cmi_service.envio_data(
+                {
+                    "SISTEMA": "MOTOR_INFERENCIA",
+                    "consulta": body.get("mensaje"),
+                }
+            )
+
             return Response(
                 {
                     "data": response_motor_inferencia,
@@ -54,7 +61,23 @@ class Rule(APIView):
                 dispositivo_modificacion=body.get("dispositivo_modificacion"),
                 estado=body.get("estado"),
             )
+
+            cmi_service.envio_data(
+                {
+                    "SISTEMA": "MOTOR_INFERENCIA",
+                    "tipo_peticion": "POST",
+                    "coleccion": "Reglas",
+                    "regla": body.get("rule").lower() or None,
+                    "usuario_creacion": body.get("usuario_creacion"),
+                    "dispositivo_creacion": body.get("dispositivo_creacion"),
+                    "usuario_modificacion": body.get("usuario_modificacion"),
+                    "dispositivo_modificacion": body.get("dispositivo_modificacion"),
+                    "estado": body.get("estado"),
+                }
+            )
+
             rule.save()
+
             return Response(
                 {
                     "message": "Regla creada exitosamente",
@@ -120,6 +143,33 @@ class Rule(APIView):
 
             rule.usuario_modificacion = body.get("usuario_modificacion")
             rule.dispositivo_modificacion = body.get("dispositivo_modificacion")
+
+            # Alimentación CMI
+            rule_to_dict = rule.to_mongo().to_dict()
+
+            cmi_service.envio_data(
+                {
+                    "SISTEMA": "MOTOR_INFERENCIA",
+                    "tipo_peticion": "PUT",
+                    "coleccion": "Reglas",
+                    "id": str(rule_to_dict.get("id")),
+                    "regla": rule_to_dict.get("rule"),
+                    "fecha_creacion": str(rule_to_dict.get("fecha_creacion")),
+                    "usuario_creacion": rule_to_dict.get("usuario_creacion", None),
+                    "dispositivo_creacion": rule_to_dict.get(
+                        "dispositivo_creacion", None
+                    ),
+                    "fecha_modificacion": str(rule_to_dict.get("fecha_modificacion")),
+                    "usuario_modificacion": rule_to_dict.get(
+                        "usuario_modificacion", None
+                    ),
+                    "dispositivo_modificacion": rule_to_dict.get(
+                        "dispositivo_modificacion", None
+                    ),
+                    "estado": rule_to_dict.get("estado", None),
+                }
+            )
+
             rule.save()
 
             return Response(
@@ -139,6 +189,31 @@ class Rule(APIView):
                 return Response(
                     {"message": "Regla no encontrada"}, status=status.HTTP_404_NOT_FOUND
                 )
+
+            rule_to_dict = rule.to_mongo().to_mongo().to_dict()
+
+            cmi_service.envio_data(
+                {
+                    "SISTEMA": "MOTOR_INFERENCIA",
+                    "tipo_peticion": "DELETE",
+                    "coleccion": "Reglas",
+                    "id": str(rule_to_dict.get("id")),
+                    "regla": rule_to_dict.get("rule"),
+                    "fecha_creacion": str(rule_to_dict.get("fecha_creacion")),
+                    "usuario_creacion": rule_to_dict.get("usuario_creacion", None),
+                    "dispositivo_creacion": rule_to_dict.get(
+                        "dispositivo_creacion", None
+                    ),
+                    "fecha_modificacion": str(rule_to_dict.get("fecha_modificacion")),
+                    "usuario_modificacion": rule_to_dict.get(
+                        "usuario_modificacion", None
+                    ),
+                    "dispositivo_modificacion": rule_to_dict.get(
+                        "dispositivo_modificacion", None
+                    ),
+                    "estado": rule_to_dict.get("estado", None),
+                }
+            )
 
             rule.delete()
 
@@ -167,6 +242,20 @@ class Keyword(APIView):
                 dispositivo_creacion=body.get("dispositivo_creacion"),
                 usuario_modificacion=body.get("usuario_modificacion"),
                 dispositivo_modificacion=body.get("dispositivo_modificacion"),
+            )
+
+            cmi_service.envio_data(
+                {
+                    "SISTEMA": "MOTOR_INFERENCIA",
+                    "tipo_peticion": "POST",
+                    "coleccion": "Frases",
+                    "keyword": body.get("keyword").lower(),
+                    "rule": RuleModel.objects.get(id=ObjectId(body.get("rule"))),
+                    "usuario_creacion": body.get("usuario_creacion"),
+                    "dispositivo_creacion": body.get("dispositivo_creacion"),
+                    "usuario_modificacion": body.get("usuario_modificacion"),
+                    "dispositivo_modificacion": body.get("dispositivo_modificacion"),
+                }
             )
 
             keywords.save()
@@ -261,6 +350,34 @@ class Keyword(APIView):
 
             keyword.usuario_modificacion = body.get("usuario_modificacion")
             keyword.dispositivo_modificacion = body.get("dispositivo_modificacion")
+
+            keyword_to_dict = keyword.to_mongo().to_dict()
+
+            cmi_service.envio_data(
+                {
+                    "SISTEMA": "MOTOR_INFERENCIA",
+                    "tipo_peticion": "PUT",
+                    "coleccion": "Frases",
+                    "id": str(keyword_to_dict.get("id")),
+                    "frase": keyword_to_dict.get("keyword"),
+                    "regla": str(keyword_to_dict.get("rule")),
+                    "fecha_creacion": str(keyword_to_dict.get("fecha_creacion")),
+                    "usuario_creacion": keyword_to_dict.get("usuario_creacion", None),
+                    "dispositivo_creacion": keyword_to_dict.get(
+                        "dispositivo_creacion", None
+                    ),
+                    "fecha_modificacion": str(
+                        keyword_to_dict.get("fecha_modificacion")
+                    ),
+                    "usuario_modificacion": keyword_to_dict(
+                        "usuario_modificacion", None
+                    ),
+                    "dispositivo_modificacion": keyword_to_dict(
+                        "dispositivo_modificacion", None
+                    ),
+                }
+            )
+
             keyword.save()
 
             DataSetMotorInferencia.refresh_dataset()
@@ -284,6 +401,33 @@ class Keyword(APIView):
                 return Response(
                     {"message": "Frase no encontrada"}, status=status.HTTP_404_NOT_FOUND
                 )
+
+            keyword_to_dict = keyword.to_mongo().to_dict()
+
+            cmi_service.envio_data(
+                {
+                    "SISTEMA": "MOTOR_INFERENCIA",
+                    "tipo_peticion": "DELETE",
+                    "coleccion": "Frases",
+                    "id": str(keyword_to_dict.get("id")),
+                    "frase": keyword_to_dict.get("keyword"),
+                    "regla": str(keyword_to_dict.get("rule")),
+                    "fecha_creacion": str(keyword_to_dict.get("fecha_creacion")),
+                    "usuario_creacion": keyword_to_dict.get("usuario_creacion", None),
+                    "dispositivo_creacion": keyword_to_dict.get(
+                        "dispositivo_creacion", None
+                    ),
+                    "fecha_modificacion": str(
+                        keyword_to_dict.get("fecha_modificacion")
+                    ),
+                    "usuario_modificacion": keyword_to_dict(
+                        "usuario_modificacion", None
+                    ),
+                    "dispositivo_modificacion": keyword_to_dict(
+                        "dispositivo_modificacion", None
+                    ),
+                }
+            )
 
             keyword.delete()
 
@@ -386,6 +530,30 @@ class Inferencia(APIView):
             if rule_id:
                 body["rule"] = RuleModel.objects.get(id=ObjectId(rule_id))
             inferencia = InferenciaModel(**body)
+
+            # Envio de datos a CMI
+            inferencia_dict = inferencia.to_mongo().to_dict()
+
+            cmi_service.envio_data(
+                {
+                    "SISTEMA": "MOTOR_INFERENCIA",
+                    "tipo_peticion": "POST",
+                    "coleccion": "Inferencias",
+                    "regla": str(inferencia_dict.get("rule")),
+                    "estado": inferencia_dict.get("estado", None),
+                    "categoria": inferencia_dict.get("categoria", None),
+                    "fecha_creacion": str(inferencia_dict.get("fecha_creacion")),
+                    "usuario_creacion": inferencia_dict.get("usuario_creacion"),
+                    "dispositivo_creacion": inferencia_dict.get("dispositivo_creacion"),
+                    "fecha_modificacion": str(
+                        inferencia_dict.get("fecha_modificacion")
+                    ),
+                    "nombre_tramite": inferencia_dict.get("nombre_tramite"),
+                    "dependencia_tramite": inferencia_dict.get("dependencia_tramite"),
+                    "url_stl": inferencia_dict.get("url_stl", None),
+                }
+            )
+
             inferencia.save()
             return Response(
                 {"message": "Inferencia Creada Correctamente"},
@@ -412,6 +580,32 @@ class Inferencia(APIView):
                 for key, value in body.items():
                     if hasattr(inferencia, key):
                         setattr(inferencia, key, value)
+
+                inferencia_dict = inferencia.to_mongo().to_dict()
+
+                cmi_service.envio_data(
+                    {
+                        "SISTEMA": "MOTOR_INFERENCIA",
+                        "tipo_peticion": "PUT",
+                        "coleccion": "Inferencias",
+                        "regla": str(inferencia_dict.get("rule")),
+                        "estado": inferencia_dict.get("estado", None),
+                        "categoria": inferencia_dict.get("categoria", None),
+                        "fecha_creacion": str(inferencia_dict.get("fecha_creacion")),
+                        "usuario_creacion": inferencia_dict.get("usuario_creacion"),
+                        "dispositivo_creacion": inferencia_dict.get(
+                            "dispositivo_creacion"
+                        ),
+                        "fecha_modificacion": str(
+                            inferencia_dict.get("fecha_modificacion")
+                        ),
+                        "nombre_tramite": inferencia_dict.get("nombre_tramite"),
+                        "dependencia_tramite": inferencia_dict.get(
+                            "dependencia_tramite"
+                        ),
+                        "url_stl": inferencia_dict.get("url_stl", None),
+                    }
+                )
 
                 inferencia.save()
                 return Response(
@@ -445,6 +639,33 @@ class Inferencia(APIView):
                     )
 
                 inferencia.estado = "INA"
+
+                inferencia_dict = inferencia.to_mongo().to_dict()
+
+                cmi_service.envio_data(
+                    {
+                        "SISTEMA": "MOTOR_INFERENCIA",
+                        "tipo_peticion": "DELETE",
+                        "coleccion": "Inferencias",
+                        "regla": str(inferencia_dict.get("rule")),
+                        "estado": inferencia_dict.get("estado", None),
+                        "categoria": inferencia_dict.get("categoria", None),
+                        "fecha_creacion": str(inferencia_dict.get("fecha_creacion")),
+                        "usuario_creacion": inferencia_dict.get("usuario_creacion"),
+                        "dispositivo_creacion": inferencia_dict.get(
+                            "dispositivo_creacion"
+                        ),
+                        "fecha_modificacion": str(
+                            inferencia_dict.get("fecha_modificacion")
+                        ),
+                        "nombre_tramite": inferencia_dict.get("nombre_tramite"),
+                        "dependencia_tramite": inferencia_dict.get(
+                            "dependencia_tramite"
+                        ),
+                        "url_stl": inferencia_dict.get("url_stl", None),
+                    }
+                )
+
                 inferencia.save()
 
                 return Response(

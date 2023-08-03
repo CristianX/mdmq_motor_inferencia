@@ -56,6 +56,7 @@ MIDDLEWARE = [
     # CORS
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "motorInferencia.middlewares.whitelist_middleware.WhitelistMiddleware",
 ]
 
 ROOT_URLCONF = "mdmq_motor_inferencia.urls"

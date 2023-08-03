@@ -1,11 +1,15 @@
 from rest_framework.response import Response
 from zeep import Client
+from decouple import config
+from rest_framework import status
+
 
 class STLService:
     def consumo_tramite_soap(id):
         try:
             client = Client(
-                "http://172.22.0.104/MDMQ_Tramites_Servicios/General/TipoTramite.svc?wsdl"
+                config("URL_STL_TIPO_TRAMITE")
+                + "/MDMQ_Tramites_Servicios/General/TipoTramite.svc?wsdl"
             )
             resultado = client.service.ConsultarPorId(idTipoTramite=id)
 
@@ -18,7 +22,8 @@ class STLService:
                 return None
             else:
                 return resultado["_x003C_UrlFormulario_x003E_k__BackingField"]
-        except:
+        except Exception as e:
             return Response(
-                "Error en la conexión con STL. No se puede obtener url de tráramite"
+                {"message": f"Error en la conexión con WS STL: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
