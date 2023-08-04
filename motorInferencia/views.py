@@ -250,7 +250,12 @@ class Keyword(APIView):
                     "tipo_peticion": "POST",
                     "coleccion": "Frases",
                     "keyword": body.get("keyword").lower(),
-                    "rule": RuleModel.objects.get(id=ObjectId(body.get("rule"))),
+                    "regla_id": str(
+                        RuleModel.objects.get(id=ObjectId(body.get("rule")))["id"]
+                    ),
+                    "regla": RuleModel.objects.get(id=ObjectId(body.get("rule")))[
+                        "rule"
+                    ],
                     "usuario_creacion": body.get("usuario_creacion"),
                     "dispositivo_creacion": body.get("dispositivo_creacion"),
                     "usuario_modificacion": body.get("usuario_modificacion"),

@@ -66,6 +66,19 @@ class DataSetResultadoInferencia:
                     "estado": inferencia_resultado.estado,
                 },
             )
+            if inferencia_resultado.categoria == "pasarela_pago"
+            else (
+                inferencia_resultado.rule.rule,
+                {
+                    "categoria": inferencia_resultado.categoria,
+                    "message": inferencia_resultado.message,
+                    "correo_electronico": inferencia_resultado.correo_electronico,
+                    "contactos": inferencia_resultado.contactos,
+                    "estado": inferencia_resultado.estado,
+                },
+            )
+            if inferencia_resultado.categoria == "mensaje_bienvenida"
+            else None
             for inferencia_resultado in inferenciasResultadoResponse
         ]
 
