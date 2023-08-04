@@ -71,9 +71,11 @@ class DataSetResultadoInferencia:
                 inferencia_resultado.rule.rule,
                 {
                     "categoria": inferencia_resultado.categoria,
-                    "message": inferencia_resultado.message,
-                    "correo_electronico": inferencia_resultado.correo_electronico,
+                    "titulo": inferencia_resultado.titulo,
+                    "descripcion": inferencia_resultado.descripcion,
                     "contactos": inferencia_resultado.contactos,
+                    "correo_electronico": inferencia_resultado.correo_electronico,
+                    "post_data": inferencia_resultado.post_data,
                     "estado": inferencia_resultado.estado,
                 },
             )
