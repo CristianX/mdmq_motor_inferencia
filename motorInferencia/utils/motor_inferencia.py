@@ -1,7 +1,8 @@
 from experta import *
-import difflib
 from decouple import config
 from mongoengine import EmbeddedDocument
+from django.core.cache import cache
+from sklearn.metrics.pairwise import cosine_similarity
 from .dataset_motor_inferencia import DataSetMotorInferencia
 from .data_resultado_inferencia import DataSetResultadoInferencia
 from motorInferencia.models import KeyWordsNoMappingModel
@@ -59,8 +60,28 @@ def update_data():
     engine.reset()
 
 
+def obtener_accion_similar(query, threshold=float(config("PORCENTAJE_TOLERANCIA"))):
+    data_keywords = cache.get("dataset_motor_inferencia")
+    vectorizer = cache.get("tfidf_vectorizer")
+
+    if not data_keywords or not vectorizer:
+        raise ValueError("Keywords, antions o vectorizer no encontrados en cache")
+
+    keywords_list = [keyword for keyword, action in data_keywords]
+    actions_list = [action for keyword, action in data_keywords]
+
+    query_vector = vectorizer.transform([query])
+    keywords_vector = vectorizer.transform(keywords_list)
+
+    cosine_similarities = cosine_similarity(query_vector, keywords_vector).flatten()
+
+    similar_idxs = [i for i, val in enumerate(cosine_similarities) if val >= threshold]
+
+    return [actions_list[idx] for idx in similar_idxs]
+
+
 def motor_inferencia(consulta):
-    global engine, data_inferencia, keywords
+    global engine, data_inferencia
 
     if (
         DataSetResultadoInferencia.data_changed()
@@ -68,38 +89,23 @@ def motor_inferencia(consulta):
     ):
         update_data()
 
-    possible_actions = []
-    max_similarity = 0
-    for keyword, action in keywords.items():
-        similarity_score = difflib.SequenceMatcher(
-            None, keyword.lower(), consulta.lower()
-        ).ratio()
-        print("Keyword", keyword)
-        print("Similaridad", similarity_score)
-        if similarity_score > max_similarity:
-            max_similarity = similarity_score
-            possible_actions = [action]
-        elif similarity_score >= float(config("PORCENTAJE_TOLERANCIA")):
-            possible_actions.append(action)
+    actions_vector = obtener_accion_similar(consulta)
 
-    print("posibles acciones:", possible_actions)
-    print("Maxima similaridad:", max_similarity)
-    possible_results = {}
+    print("Acción sugerida: ", actions_vector)
 
-    for action in possible_actions:
-        print("Accion: ", action)
-        if action and max_similarity >= float(config("PORCENTAJE_TOLERANCIA")):
-            engine.reset()
-            engine.declare(Command(action=action))
-            engine.run()
-            for fact_key in engine.facts:
-                fact = engine.facts[fact_key]
-                if isinstance(fact, Resultado):
-                    possible_results[action] = fact["resultado"]
+    posible_results = {}
 
-    if possible_results:
-        return {"found": True, "resultado": possible_results}
+    for action_vector in actions_vector:
+        engine.reset()
+        engine.declare(Command(action=action_vector))
+        engine.run()
+        for fact_key in engine.facts:
+            fact = engine.facts[fact_key]
+            if isinstance(fact, Resultado):
+                posible_results[action_vector] = fact["resultado"]
 
+    if posible_results:
+        return {"found": True, "resultado": posible_results}
     else:
         try:
             keyword_no_mapping = KeyWordsNoMappingModel.objects(
@@ -114,7 +120,6 @@ def motor_inferencia(consulta):
             else:
                 keyword_no_mapping.conteo_consulta += 1
                 keyword_no_mapping.save()
-
         except Exception as e:
             return f"Error en la asignación de frase: {e}"
 

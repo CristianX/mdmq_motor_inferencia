@@ -1,4 +1,7 @@
 from django.core.cache import cache
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+vectorizer = None
 
 
 class DataSetMotorInferencia:
@@ -25,6 +28,9 @@ class DataSetMotorInferencia:
         # Añadir nuevos datos a la instancia
         instance.append(new_keyword_data)
 
+        # Entrenar vectorizado
+        cls._train_vectorizer(instance)
+
         # Actualizar la instancia en la caché
         cache.set(cls._instance_key, instance, timeout=None)
 
@@ -32,6 +38,7 @@ class DataSetMotorInferencia:
 
     @staticmethod
     def _create_keywords_data():
+        global vectorizer
         from motorInferencia.models import KeywordsModel
 
         KeywordsModel.ensure_indexes()
@@ -42,6 +49,10 @@ class DataSetMotorInferencia:
         data_keywords = [
             (keyword.keyword, keyword.rule.rule) for keyword in keywordsResponse
         ]
+
+        # Entrenando vectorizador TF-IDF
+        DataSetMotorInferencia._train_vectorizer(data_keywords)
+
         return data_keywords
 
     @classmethod
@@ -70,3 +81,9 @@ class DataSetMotorInferencia:
         instance = cls._create_keywords_data()
         cache.set(cls._instance_key, instance, timeout=None)
         return instance
+
+    @classmethod
+    def _train_vectorizer(cls, data_keywords):
+        keywords_list = [keyword for keyword, action in data_keywords]
+        vectorizer = TfidfVectorizer().fit(keywords_list)
+        cache.set("tfidf_vectorizer", vectorizer, timeout=None)
