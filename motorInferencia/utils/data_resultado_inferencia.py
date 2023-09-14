@@ -80,6 +80,17 @@ class DataSetResultadoInferencia:
                 },
             )
             if inferencia_resultado.categoria == "mensaje_bienvenida"
+            else (
+                inferencia_resultado.rule.rule,
+                {
+                    "categoria": inferencia_resultado.categoria,
+                    "nombre_formulario": inferencia_resultado.nombre_formulario,
+                    "grupo_formulario": inferencia_resultado.grupo_formulario,
+                    "url_formulario": inferencia_resultado.url_formulario,
+                    "estado": inferencia_resultado.estado,
+                },
+            )
+            if inferencia_resultado.categoria == "formulario"
             else None
             for inferencia_resultado in inferenciasResultadoResponse
         ]
