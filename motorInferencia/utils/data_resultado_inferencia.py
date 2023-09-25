@@ -91,6 +91,16 @@ class DataSetResultadoInferencia:
                 },
             )
             if inferencia_resultado.categoria == "formulario"
+            else (
+                inferencia_resultado.rule.rule,
+                {
+                    "categoria": inferencia_resultado.categoria,
+                    "titulo_pregunta": inferencia_resultado.titulo_pregunta,
+                    "respuesta_pregunta": inferencia_resultado.respuesta_pregunta,
+                    "estado": inferencia_resultado.estado,
+                },
+            )
+            if inferencia_resultado.categoria == "preguntas_frecuentes"
             else None
             for inferencia_resultado in inferenciasResultadoResponse
         ]

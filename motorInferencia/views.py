@@ -479,7 +479,9 @@ class Inferencia(APIView):
                 }
 
                 if inf_dict["categoria"] == "informacion":
-                    inf_dict["url_stl"] = config("URL_STL") + inf_dict["url_stl"]
+                    inf_dict["url_stl"] = config("URL_STL") + str(
+                        inf_dict["id_tramite"]
+                    )
                     # inf_dict["url_tramite"] = consumo_tramite_soap(inf_dict["id_tramite"])
                     inf_dict["url_tramite"] = STLService.consumo_tramite_soap(
                         inf_dict["id_tramite"]
@@ -571,6 +573,7 @@ class Inferencia(APIView):
 
     def put(self, request, *args, **kwargs):
         body = request.data
+
         if "id" in kwargs:
             try:
                 inferencia = InferenciaModel.objects(
@@ -583,10 +586,14 @@ class Inferencia(APIView):
                     )
 
                 for key, value in body.items():
+                    if key == "rule":
+                        continue
                     if hasattr(inferencia, key):
                         setattr(inferencia, key, value)
 
                 inferencia_dict = inferencia.to_mongo().to_dict()
+
+                print("Inferencia a actualizar", inferencia_dict)
 
                 cmi_service.envio_data(
                     {
