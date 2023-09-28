@@ -737,3 +737,28 @@ class KeywordNoMapping(APIView):
                 {"message": f"Error al obtener las keywords {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class KeywordsByRule(APIView):
+    def get(self, request, rule_id, *args, **kwargs):
+        try:
+            keywords = KeywordsModel.objects(rule=ObjectId(rule_id))
+            if not keywords:
+                return Response(
+                    {
+                        "message": "No se encontraron registros para la regla especificada."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            data = [
+                {"id": str(kw.id), "keyword": kw.keyword, "rule": kw.rule.rule}
+                for kw in keywords
+            ]
+            return Response(data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response(
+                {"message": f"Error al obtener frases para esa regla {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
