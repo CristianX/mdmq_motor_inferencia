@@ -654,6 +654,16 @@ class Inferencia(APIView):
 
                 inferencia.estado = "INA"
 
+                # Desactivando frases
+                # keywords_associated = KeywordsModel.objects(rule=inferencia.rule)
+                # for keyword in keywords_associated:
+                #     keyword.estadp = "INA"
+                #     keyword.save()
+
+                # Desactivando reglas
+                inferencia.rule.estado = "INA"
+                inferencia.rule.save()
+
                 inferencia_dict = inferencia.to_mongo().to_dict()
 
                 cmi_service.envio_data(
