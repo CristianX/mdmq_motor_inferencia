@@ -53,6 +53,7 @@ class DataSetResultadoInferencia:
                         inferencia_resultado.id_tramite
                     ),
                     "estado": inferencia_resultado.estado,
+                    "id_tramite": inferencia_resultado.id_tramite,
                 },
             )
             if inferencia_resultado.categoria == "informacion"
