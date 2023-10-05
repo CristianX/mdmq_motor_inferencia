@@ -482,11 +482,16 @@ class Inferencia(APIView):
                     inf_dict["url_stl"] = config("URL_STL") + str(
                         inf_dict["id_tramite"]
                     )
-                    # inf_dict["url_tramite"] = consumo_tramite_soap(inf_dict["id_tramite"])
                     inf_dict["url_tramite"] = STLService.consumo_tramite_soap(
                         inf_dict["id_tramite"]
-                    )
-                else:
+                    )["url_tramite"]
+                    inf_dict["url_redireccion"] = STLService.consumo_tramite_soap(
+                        inf_dict["id_tramite"]
+                    )["url_redireccion"]
+                    inf_dict["login"] = STLService.consumo_tramite_soap(
+                        inf_dict["id_tramite"]
+                    )["login"]
+                elif inf_dict["categoria"] == "pasarela_pago":
                     inf_dict["url_pasarela_pago"] = config("PASARELA_PAGO")
 
                 # return Response(inf_dict, status=status.HTTP_200_OK)
@@ -503,21 +508,32 @@ class Inferencia(APIView):
 
                 for inf in inferencias:
                     inf_dict = inf.to_mongo().to_dict()
+
                     inf_dict = {
                         k: str(v) if isinstance(v, ObjectId) else v
                         for k, v in inf_dict.items()
                         if k not in excluded_fields
                     }
+
                     if inf_dict["categoria"] == "informacion":
                         inf_dict["url_stl"] = config("URL_STL") + str(
                             inf_dict["id_tramite"]
                         )
                         inf_dict["url_tramite"] = STLService.consumo_tramite_soap(
                             inf_dict["id_tramite"]
-                        )
+                        )["url_tramite"]
+                        inf_dict["url_redireccion"] = STLService.consumo_tramite_soap(
+                            inf_dict["id_tramite"]
+                        )["url_redireccion"]
+                        inf_dict["login"] = STLService.consumo_tramite_soap(
+                            inf_dict["id_tramite"]
+                        )["login"]
                         inferencias_list.append(inf_dict)
-                    else:
+                    elif inf_dict["categoria"] == "pasarela_pago":
                         inf_dict["url_pasarela_pago"] = config("PASARELA_PAGO")
+                        inferencias_list.append(inf_dict)
+
+                    else:
                         inferencias_list.append(inf_dict)
 
                 return Response(
