@@ -17,11 +17,24 @@ class STLService:
                 resultado["_x003C_UrlFormulario_x003E_k__BackingField"]
                 == "/MDMQ_Tramites/Solicitud?strestado=1"
             ):
-                return f"https://pam.quito.gob.ec/PAM/PopupLogin.aspx?tipoProceso={id}"
+                return {
+                    "url_tramite": f"https://pam.quito.gob.ec/PAM/PopupLogin.aspx?tipoProceso={id}",
+                    "url_redireccion": config("URL_STL")
+                    + resultado["_x003C_UrlFormulario_x003E_k__BackingField"],
+                    "login": True,
+                }
             elif resultado["_x003C_UrlFormulario_x003E_k__BackingField"] == "":
-                return None
+                return {"url_tramite": None, "url_redireccion": None, "login": False}
             else:
-                return resultado["_x003C_UrlFormulario_x003E_k__BackingField"]
+                return {
+                    "url_tramite": resultado[
+                        "_x003C_UrlFormulario_x003E_k__BackingField"
+                    ],
+                    "url_redireccion": resultado[
+                        "_x003C_UrlFormulario_x003E_k__BackingField"
+                    ],
+                    "login": False,
+                }
         except Exception as e:
             return Response(
                 {"message": f"Error en la conexión con WS STL: {e}"},

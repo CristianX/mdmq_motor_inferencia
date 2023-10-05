@@ -48,12 +48,20 @@ class DataSetResultadoInferencia:
                     "categoria": inferencia_resultado.categoria,
                     "nombre_tramite": inferencia_resultado.nombre_tramite,
                     "dependencia_tramite": inferencia_resultado.dependencia_tramite,
-                    "url_stl": config("URL_STL") + str(inferencia_resultado.id_tramite),
+                    "url_stl": config("URL_STL")
+                    + config("FICHA_TRAMITE")
+                    + str(inferencia_resultado.id_tramite),
                     "url_tramite": STLService.consumo_tramite_soap(
                         inferencia_resultado.id_tramite
-                    ),
+                    )["url_tramite"],
                     "estado": inferencia_resultado.estado,
                     "id_tramite": inferencia_resultado.id_tramite,
+                    "url_redireccion": STLService.consumo_tramite_soap(
+                        inferencia_resultado.id_tramite
+                    )["url_redireccion"],
+                    "login": STLService.consumo_tramite_soap(
+                        inferencia_resultado.id_tramite
+                    )["login"],
                 },
             )
             if inferencia_resultado.categoria == "informacion"
