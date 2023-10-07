@@ -1,6 +1,7 @@
 from django.core.cache import cache
 from decouple import config
 from .services.stl_service import STLService
+from bson import ObjectId
 
 
 class DataSetResultadoInferencia:
@@ -45,6 +46,7 @@ class DataSetResultadoInferencia:
             (
                 inferencia_resultado.rule.rule,
                 {
+                    "id": str(ObjectId(inferencia_resultado.id)),
                     "categoria": inferencia_resultado.categoria,
                     "nombre_tramite": inferencia_resultado.nombre_tramite,
                     "dependencia_tramite": inferencia_resultado.dependencia_tramite,
@@ -68,6 +70,7 @@ class DataSetResultadoInferencia:
             else (
                 inferencia_resultado.rule.rule,
                 {
+                    "id": str(ObjectId(inferencia_resultado.id)),
                     "categoria": inferencia_resultado.categoria,
                     "nombre_tramite": inferencia_resultado.nombre_tramite,
                     "dependencia_tramite": inferencia_resultado.dependencia_tramite,
@@ -79,6 +82,7 @@ class DataSetResultadoInferencia:
             else (
                 inferencia_resultado.rule.rule,
                 {
+                    "id": str(ObjectId(inferencia_resultado.id)),
                     "categoria": inferencia_resultado.categoria,
                     "titulo": inferencia_resultado.titulo,
                     "descripcion": inferencia_resultado.descripcion,
@@ -92,6 +96,7 @@ class DataSetResultadoInferencia:
             else (
                 inferencia_resultado.rule.rule,
                 {
+                    "id": str(ObjectId(inferencia_resultado.id)),
                     "categoria": inferencia_resultado.categoria,
                     "nombre_formulario": inferencia_resultado.nombre_formulario,
                     "grupo_formulario": inferencia_resultado.grupo_formulario,
@@ -103,6 +108,7 @@ class DataSetResultadoInferencia:
             else (
                 inferencia_resultado.rule.rule,
                 {
+                    "id": str(ObjectId(inferencia_resultado.id)),
                     "categoria": inferencia_resultado.categoria,
                     "titulo_pregunta": inferencia_resultado.titulo_pregunta,
                     "respuesta_pregunta": inferencia_resultado.respuesta_pregunta,
@@ -112,6 +118,7 @@ class DataSetResultadoInferencia:
             if inferencia_resultado.categoria == "preguntas_frecuentes"
             else None
             for inferencia_resultado in inferenciasResultadoResponse
+            if inferencia_resultado.estado == "ACT"
         ]
 
         return data_resultado_inferencia
@@ -142,3 +149,15 @@ class DataSetResultadoInferencia:
         instance = cls._create_inferencia_data()
         cache.set(cls._instance_key, instance, timeout=None)
         return instance
+
+    @classmethod
+    def remove_inference_from_cache_by_id(cls, inferencia_id):
+        print("Inferencia id: ", inferencia_id)
+        inferencias = cache.get(cls._instance_key)
+        if inferencias:
+            updated_inferencias = [
+                tupla for tupla in inferencias if tupla[1]["id"] != inferencia_id
+            ]
+
+            cache.set(cls._instance_key, updated_inferencias, timeout=None)
+        return updated_inferencias

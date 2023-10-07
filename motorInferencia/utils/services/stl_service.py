@@ -18,7 +18,7 @@ class STLService:
                 == "/MDMQ_Tramites/Solicitud?strestado=1"
             ):
                 return {
-                    "url_tramite": f"https://pam.quito.gob.ec/PAM/PopupLogin.aspx?tipoProceso={id}",
+                    "url_tramite": config("URL_LOGIN") + str(id),
                     "url_redireccion": config("URL_STL")
                     + resultado["_x003C_UrlFormulario_x003E_k__BackingField"],
                     "login": True,

@@ -65,7 +65,7 @@ def obtener_accion_similar(query, threshold=float(config("PORCENTAJE_TOLERANCIA"
     vectorizer = cache.get("tfidf_vectorizer")
 
     if not data_keywords or not vectorizer:
-        raise ValueError("Keywords, antions o vectorizer no encontrados en cache")
+        raise ValueError("Keywords, actions o vectorizer no encontrados en cache")
 
     keywords_list = [keyword for keyword, action in data_keywords]
     actions_list = [action for keyword, action in data_keywords]

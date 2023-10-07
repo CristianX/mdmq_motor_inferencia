@@ -678,7 +678,6 @@ class Inferencia(APIView):
 
                 # Desactivando reglas
                 inferencia.rule.estado = "INA"
-                inferencia.rule.save()
 
                 inferencia_dict = inferencia.to_mongo().to_dict()
 
@@ -706,6 +705,10 @@ class Inferencia(APIView):
                     }
                 )
 
+                DataSetResultadoInferencia.remove_inference_from_cache_by_id(
+                    kwargs.get("id")
+                )
+                inferencia.rule.save()
                 inferencia.save()
 
                 return Response(
