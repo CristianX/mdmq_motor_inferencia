@@ -24,6 +24,7 @@ from motorInferencia.views import (
     Inferencia,
     KeywordNoMapping,
     KeywordsByRule,
+    Tuplas,
 )
 
 urlpatterns = [
@@ -48,4 +49,5 @@ urlpatterns = [
     path(
         "keywords/by-rule/<rule_id>", KeywordsByRule.as_view(), name="keywords_by_rule"
     ),
+    path("tuplas/", Tuplas.as_view(), name="tuplas"),
 ]

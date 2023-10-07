@@ -791,3 +791,17 @@ class KeywordsByRule(APIView):
                 {"message": f"Error al obtener frases para esa regla {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+
+class Tuplas(APIView):
+    def get(self, request, *args, **kwargs):
+        if DataSetResultadoInferencia.get_instance():
+            return Response(
+                {"found": True, "resultado": DataSetResultadoInferencia.get_instance()},
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"message": "Inferencias no existentes"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
