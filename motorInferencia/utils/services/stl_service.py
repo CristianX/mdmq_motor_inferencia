@@ -23,6 +23,17 @@ class STLService:
                     + resultado["_x003C_UrlFormulario_x003E_k__BackingField"],
                     "login": True,
                 }
+            elif "strestado=2" in str(
+                resultado["_x003C_UrlFormulario_x003E_k__BackingField"]
+            ):
+                return {
+                    "url_tramite": config("URL_LOGIN") + str(id),
+                    "url_redireccion": resultado[
+                        "_x003C_UrlFormulario_x003E_k__BackingField"
+                    ]
+                    + "&token=",
+                    "login": True,
+                }
             elif resultado["_x003C_UrlFormulario_x003E_k__BackingField"] == "":
                 return {"url_tramite": None, "url_redireccion": None, "login": False}
             else:
