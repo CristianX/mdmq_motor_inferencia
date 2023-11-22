@@ -1,14 +1,26 @@
-from rest_framework.response import Response
-from rest_framework import status
+"""
+Consumo de WSO2 para obtención y refresco de Token
+"""
+
+import base64
+
 import requests
 from decouple import config
 from django.core.cache import cache
-import base64
+from rest_framework import status
+from rest_framework.response import Response
 
 
 class WSO2Service:
+    """
+    Clase de consumo de EndPoints WSO2
+    """
     @staticmethod
     def generar_token():
+        """
+        Función para generar Token por primera vez para consumo
+        de EndPoints
+        """
         url = config("URL_WSO2") + "/oauth2/token"
         client_id = config("CLIENT_ID_WSO2")
         client_secret = config("CLIENT_SECRET_WSO2")
@@ -33,7 +45,13 @@ class WSO2Service:
         }
 
         try:
-            response = requests.post(url, headers=headers, data=data, verify=False)
+            response = requests.post(
+                url,
+                headers=headers,
+                data=data,
+                verify=False,
+                timeout=config("TIMEOUT_CONNECTION")
+            )
 
             if response.status_code == 200:
                 response_data = response.json()
@@ -54,6 +72,9 @@ class WSO2Service:
 
     @staticmethod
     def refresh_token(refresh_token):
+        """
+        Función que posibilita la opción de refrescar token
+        """
         url = config("URL_WSO2") + "/oauth2/token"
         client_id = config("CLIENT_ID_WSO2")
         client_secret = config("CLIENT_SECRET_WSO2")
@@ -76,7 +97,13 @@ class WSO2Service:
         }
 
         try:
-            response = requests.post(url, headers=headers, data=data, verify=False)
+            response = requests.post(
+                url,
+                headers=headers,
+                data=data,
+                verify=False,
+                timeout=config("TIMEOUT_CONNECTION")
+            )
 
             if response.status_code == 200:
                 response_data = response.json()
