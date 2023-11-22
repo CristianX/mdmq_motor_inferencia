@@ -1,6 +1,25 @@
 {
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
+        "editor.defaultFormatter": "ms-python.python"
     },
-    "python.formatting.provider": "none"
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "88"
+    ],
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--load-plugins=pylint_django",
+        "--disable=no-member",
+        "--disable=missing-docstring",
+        "--disable=unused-argument",
+        "--disable=duplicate-code"
+    ],
+    "python.analysis.extraPaths": ["./"],
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+    },
+    "python.linting.pylintPath": "pylint"
 }

@@ -11,37 +11,47 @@ class STLService:
                 config("URL_STL_TIPO_TRAMITE")
                 + "/MDMQ_Tramites_Servicios/General/TipoTramite.svc?wsdl"
             )
-            resultado = client.service.ConsultarPorId(idTipoTramite=id)
+            resultado = client.service.ConsultarTodosParaSolicitud()
+
+            tramites_por_id = {
+                t["_x003C_TipoTramiteId_x003E_k__BackingField"]: t for t in resultado
+            }
+
+            tramite_consultado = tramites_por_id.get(id)
+
+            print("Data de trámite consultado por id: ", tramite_consultado)
 
             if (
-                resultado["_x003C_UrlFormulario_x003E_k__BackingField"]
+                tramite_consultado["_x003C_UrlFormulario_x003E_k__BackingField"]
                 == "/MDMQ_Tramites/Solicitud?strestado=1"
             ):
                 return {
                     "url_tramite": config("URL_LOGIN") + str(id),
                     "url_redireccion": config("URL_STL")
-                    + resultado["_x003C_UrlFormulario_x003E_k__BackingField"],
+                    + tramite_consultado["_x003C_UrlFormulario_x003E_k__BackingField"],
                     "login": True,
                 }
             elif "strestado=2" in str(
-                resultado["_x003C_UrlFormulario_x003E_k__BackingField"]
+                tramite_consultado["_x003C_UrlFormulario_x003E_k__BackingField"]
             ):
                 return {
                     "url_tramite": config("URL_LOGIN") + str(id),
-                    "url_redireccion": resultado[
+                    "url_redireccion": tramite_consultado[
                         "_x003C_UrlFormulario_x003E_k__BackingField"
                     ]
                     + "&token=",
                     "login": True,
                 }
-            elif resultado["_x003C_UrlFormulario_x003E_k__BackingField"] == "":
+            elif (
+                tramite_consultado["_x003C_UrlFormulario_x003E_k__BackingField"] is None
+            ):
                 return {"url_tramite": None, "url_redireccion": None, "login": False}
             else:
                 return {
-                    "url_tramite": resultado[
+                    "url_tramite": tramite_consultado[
                         "_x003C_UrlFormulario_x003E_k__BackingField"
                     ],
-                    "url_redireccion": resultado[
+                    "url_redireccion": tramite_consultado[
                         "_x003C_UrlFormulario_x003E_k__BackingField"
                     ],
                     "login": False,

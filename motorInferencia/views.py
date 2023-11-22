@@ -1,19 +1,17 @@
-from rest_framework.views import APIView
+from bson import ObjectId
+from decouple import config
 from rest_framework import status
 from rest_framework.response import Response
-from .utils.motor_inferencia import motor_inferencia
-from motorInferencia.models import (
-    RuleModel,
-    KeywordsModel,
-    InferenciaModel,
-    KeyWordsNoMappingModel,
-)
-from bson import ObjectId
-from .utils.dataset_motor_inferencia import DataSetMotorInferencia
+from rest_framework.views import APIView
+
+from motorInferencia.models import (InferenciaModel, KeywordsModel,
+                                    KeyWordsNoMappingModel, RuleModel)
+
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
-from .utils.services.stl_service import STLService
+from .utils.dataset_motor_inferencia import DataSetMotorInferencia
+from .utils.motor_inferencia import motor_inferencia
 from .utils.services.cmi_service import CMIService
-from decouple import config
+from .utils.services.stl_service import STLService
 
 # from django.forms.models import model_to_dict
 
