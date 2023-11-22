@@ -1,11 +1,31 @@
+"""
+Servicio de STL para obtener toda la data del servicio SOAP,
+la data devuelta se lo poarsea con zeep ya que es un XML
+
+"""
+from decouple import config
+from requests.exceptions import RequestException
+from rest_framework import status
 from rest_framework.response import Response
 from zeep import Client
-from decouple import config
-from rest_framework import status
+from zeep.exceptions import Fault, TransportError
 
 
 class STLService:
-    def consumo_tramite_soap(id):
+    """
+    Clase de STLService para consumo de servicio SOAP
+    """
+    def consumo_tramite_soap(self, tramite_id):
+        """
+    Consume el servicio SOAP de STL para obtener información detallada de un trámite 
+    específico basado en su ID.
+
+    Args:
+        tramite_id (int): El ID del trámite a consultar.
+
+    Returns:
+        dict | Response: Un diccionario con los detalles del trámite o una respuesta de error.
+    """
         try:
             client = Client(
                 config("URL_STL_TIPO_TRAMITE")
@@ -17,16 +37,16 @@ class STLService:
                 t["_x003C_TipoTramiteId_x003E_k__BackingField"]: t for t in resultado
             }
 
-            tramite_consultado = tramites_por_id.get(id)
+            tramite_consultado = tramites_por_id.get(tramite_id)
 
-            print("Data de trámite consultado por id: ", tramite_consultado)
+            print("Data de trámite consultado por tramite_id: ", tramite_consultado)
 
             if (
                 tramite_consultado["_x003C_UrlFormulario_x003E_k__BackingField"]
                 == "/MDMQ_Tramites/Solicitud?strestado=1"
             ):
                 return {
-                    "url_tramite": config("URL_LOGIN") + str(id),
+                    "url_tramite": config("URL_LOGIN") + str(tramite_id),
                     "url_redireccion": config("URL_STL")
                     + tramite_consultado["_x003C_UrlFormulario_x003E_k__BackingField"],
                     "login": True,
@@ -35,7 +55,7 @@ class STLService:
                 tramite_consultado["_x003C_UrlFormulario_x003E_k__BackingField"]
             ):
                 return {
-                    "url_tramite": config("URL_LOGIN") + str(id),
+                    "url_tramite": config("URL_LOGIN") + str(tramite_id),
                     "url_redireccion": tramite_consultado[
                         "_x003C_UrlFormulario_x003E_k__BackingField"
                     ]
@@ -56,8 +76,23 @@ class STLService:
                     ],
                     "login": False,
                 }
-        except Exception as e:
+        except Fault as fault:
             return Response(
-                {"message": f"Error en la conexión con WS STL: {e}"},
+                {"message": f"Error SOAP Fault: {fault}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except TransportError as transport_error:
+            return Response(
+                {"message": f"Error de transporte SOAP: {transport_error}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except RequestException as request_exception:
+            return Response(
+                {"message": f"Error en la solicitud HTTP: {request_exception}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:  # Esta es una captura general para otros errores imprevistos
+            return Response(
+                {"message": f"Error inesperado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
