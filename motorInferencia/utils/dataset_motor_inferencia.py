@@ -1,3 +1,4 @@
+"""Cache de Fases"""
 from django.core.cache import cache
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -7,11 +8,13 @@ vectorizer = None
 
 
 class DataSetMotorInferencia:
+    """Modificación de Caché registrada de frases"""
     _instance_key = "dataset_motor_inferencia"
     _last_update_key = "last_update_dataset_motor_inferencia"
 
     @classmethod
     def get_instance(cls):
+        """Verificando si instancia existe caso contrario se crea"""
         # Verificamos si ya existe una instancia en la caché.
         instance = cache.get(cls._instance_key)
 
@@ -24,6 +27,7 @@ class DataSetMotorInferencia:
 
     @classmethod
     def update_instance(cls, new_keyword_data):
+        """Actualizando instancia de caché de frases"""
         # Obtener la instancia existente
         instance = cls.get_instance()
 
@@ -40,6 +44,7 @@ class DataSetMotorInferencia:
 
     @staticmethod
     def _create_keywords_data():
+        """Guardando frases en caché"""
         global vectorizer
         from motorInferencia.models import KeywordsModel
 
@@ -59,6 +64,7 @@ class DataSetMotorInferencia:
 
     @classmethod
     def data_changed(cls):
+        """Identificando si la data ha sido cambiada para actualizar la caché"""
         from motorInferencia.models import KeywordsModel
 
         last_modification = (
@@ -77,6 +83,9 @@ class DataSetMotorInferencia:
 
     @classmethod
     def refresh_dataset(cls):
+
+        """Refrescando toda la data de la caché"""
+
         # Eliminar data de la cache
         cache.delete(cls._instance_key)
 
