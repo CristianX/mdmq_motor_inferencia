@@ -1,11 +1,15 @@
-from experta import *
+"""Evaluando frases ingresadas para calcular su certeza"""
+
 from decouple import config
-from mongoengine import EmbeddedDocument
 from django.core.cache import cache
+from experta import *
+from mongoengine import EmbeddedDocument
 from sklearn.metrics.pairwise import cosine_similarity
-from .dataset_motor_inferencia import DataSetMotorInferencia
-from .data_resultado_inferencia import DataSetResultadoInferencia
+
 from motorInferencia.models import KeyWordsNoMappingModel
+
+from .data_resultado_inferencia import DataSetResultadoInferencia
+from .dataset_motor_inferencia import DataSetMotorInferencia
 
 # pylint: disable=no-member
 

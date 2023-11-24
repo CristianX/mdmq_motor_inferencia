@@ -4,8 +4,12 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from motorInferencia.models import (InferenciaModel, KeywordsModel,
-                                    KeyWordsNoMappingModel, RuleModel)
+from motorInferencia.models import (
+    InferenciaModel,
+    KeywordsModel,
+    KeyWordsNoMappingModel,
+    RuleModel,
+)
 
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
@@ -14,6 +18,8 @@ from .utils.services.cmi_service import CMIService
 from .utils.services.stl_service import STLService
 
 # from django.forms.models import model_to_dict
+
+# pylint: disable=no-member
 
 cmi_service = CMIService()
 
