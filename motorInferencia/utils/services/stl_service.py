@@ -15,13 +15,14 @@ class STLService:
     """
     Clase de STLService para consumo de servicio SOAP
     """
-    def consumo_tramite_soap(self, tramite_id):
+    @staticmethod
+    def consumo_tramite_soap(tramite_id):
         """
     Consume el servicio SOAP de STL para obtener información detallada de un trámite 
     específico basado en su ID.
 
     Args:
-        tramite_id (int): El ID del trámite a consultar.
+        tramite_id (Any): El ID del trámite a consultar.
 
     Returns:
         dict | Response: Un diccionario con los detalles del trámite o una respuesta de error.

@@ -7,6 +7,8 @@ from .dataset_motor_inferencia import DataSetMotorInferencia
 from .data_resultado_inferencia import DataSetResultadoInferencia
 from motorInferencia.models import KeyWordsNoMappingModel
 
+# pylint: disable=no-member
+
 
 class Command(Fact):
     action = Field(str)

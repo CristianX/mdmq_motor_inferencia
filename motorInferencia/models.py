@@ -1,22 +1,26 @@
+"""Modelos de BDD MongoDB"""
+
 # from django.db import models
 from datetime import datetime
+
+# pylint: disable=no-name-in-module
+# pylint: disable=import-error
+# pylint: disable=no-member
 from mongoengine import (
-    Document,
-    StringField,
     DateTimeField,
-    ReferenceField,
-    IntField,
-    URLField,
-    ListField,
-    EmbeddedDocumentField,
-    EmbeddedDocument,
+    Document,
     DynamicDocument,
+    IntField,
+    ReferenceField,
+    StringField,
 )
 
 # Create your models here.
 
 
 class RuleModel(Document):
+    """Colección de Reglas"""
+
     rule = StringField(max_length=500, required=True, unique=True)
     estado = StringField(max_length=3, required=True)
     fecha_creacion = DateTimeField(default=datetime.utcnow)
@@ -46,6 +50,8 @@ class RuleModel(Document):
 
 
 class KeywordsModel(Document):
+    """Colección de Frases"""
+
     keyword = StringField(max_length=500, required=True, unique=True)
     rule = ReferenceField(RuleModel, reverse_delete_rule=2)
     fecha_creacion = DateTimeField(default=datetime.utcnow)
@@ -85,10 +91,9 @@ class KeywordsModel(Document):
 KeywordsModel.ensure_indexes()
 
 
-# TODO: Está permitiendo guardar campos nulos o en blanco
-
-
 class InferenciaModel(DynamicDocument):
+    """Colección de Inferencias"""
+
     rule = ReferenceField(RuleModel, reverse_delete_rule=2, required=True)
 
     estado = StringField(max_length=3, required=True)
@@ -115,6 +120,8 @@ InferenciaModel.ensure_indexes()
 
 
 class KeyWordsNoMappingModel(Document):
+    """Colección de Frases no Mapeadas"""
+
     keyword = StringField(max_length=500, required=True, unique=True)
     conteo_consulta = IntField()
     fecha_creacion = DateTimeField(default=datetime.utcnow)

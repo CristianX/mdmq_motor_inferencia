@@ -1,15 +1,26 @@
-from django.core.cache import cache
-from decouple import config
-from .services.stl_service import STLService
+"""
+Gestión de Inferencias en caché
+"""
 from bson import ObjectId
+from decouple import config
+from django.core.cache import cache
+
+from .services.stl_service import STLService
+
+# pylint: disable=no-member
 
 
 class DataSetResultadoInferencia:
+    """
+    Creación, actualización y eliminación de Inferencias
+    """
+
     _instance_key = "dataset_resultado_inferencia"
     _last_update_key = "last_update_dataset_resultado_inferencia"
 
     @classmethod
     def get_instance(cls):
+        """Obteniendo Inferencia"""
         # Verificamos si ya existe una instancia en la caché.
         instance = cache.get(cls._instance_key)
 
@@ -22,6 +33,7 @@ class DataSetResultadoInferencia:
 
     @classmethod
     def update_instance(cls, new_inferencia_data):
+        """Actualizando Inferencias"""
         # Obtener la instancia existente
         instance = cls.get_instance()
 
@@ -35,11 +47,12 @@ class DataSetResultadoInferencia:
 
     @staticmethod
     def _create_inferencia_data():
+        """Creando y clasficando data de Inferencia"""
         from motorInferencia.models import InferenciaModel
 
         InferenciaModel.ensure_indexes()
 
-        inferenciasResultadoResponse = InferenciaModel.objects.all()
+        inferencias_resultado_response = InferenciaModel.objects.all()
 
         # Asignando data a instancia por primera vez
         data_resultado_inferencia = [
@@ -117,7 +130,7 @@ class DataSetResultadoInferencia:
             )
             if inferencia_resultado.categoria == "preguntas_frecuentes"
             else None
-            for inferencia_resultado in inferenciasResultadoResponse
+            for inferencia_resultado in inferencias_resultado_response
             if inferencia_resultado.estado == "ACT"
         ]
 
@@ -125,6 +138,7 @@ class DataSetResultadoInferencia:
 
     @classmethod
     def data_changed(cls):
+        """Evalua si la data ha cambiado para cargarla nuevamente"""
         from motorInferencia.models import InferenciaModel
 
         last_modification = (
@@ -143,6 +157,8 @@ class DataSetResultadoInferencia:
 
     @classmethod
     def refresh_dataset(cls):
+        """Refresca la data de la cache de Inferencias"""
+
         # Eliminar data de la cache
         cache.delete(cls._instance_key)
 
@@ -152,6 +168,7 @@ class DataSetResultadoInferencia:
 
     @classmethod
     def remove_inference_from_cache_by_id(cls, inferencia_id):
+        """Remueve una inferencia de la caché"""
         print("Inferencia id: ", inferencia_id)
         inferencias = cache.get(cls._instance_key)
         if inferencias:

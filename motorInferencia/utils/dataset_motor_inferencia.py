@@ -1,6 +1,8 @@
 from django.core.cache import cache
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+# pylint: disable=no-member
+
 vectorizer = None
 
 

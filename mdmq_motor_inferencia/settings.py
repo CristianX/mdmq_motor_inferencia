@@ -11,9 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+
 from decouple import config
 from mongoengine import connect
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -90,8 +90,6 @@ WSGI_APPLICATION = "mdmq_motor_inferencia.wsgi.application"
 #         "CLIENT": {"host": config("CLIENT_HOST")},
 #     }
 # }
-
-from mongoengine import connect
 
 connect(
     db=config("BDD_NAME"),
