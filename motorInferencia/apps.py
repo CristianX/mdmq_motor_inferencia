@@ -1,7 +1,9 @@
-from django.apps import AppConfig
 import threading
-from .utils.dataset_motor_inferencia import DataSetMotorInferencia
+
+from django.apps import AppConfig
+
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
+from .utils.dataset_motor_inferencia import DataSetMotorInferencia
 from .utils.services.wso2_service import WSO2Service
 
 
@@ -17,6 +19,6 @@ class MotorinferenciaConfig(AppConfig):
         thread.start()
 
     def async_get_instance(self):
-        WSO2Service.generar_token()
+        # WSO2Service.generar_token()
         DataSetMotorInferencia.get_instance()
         DataSetResultadoInferencia.get_instance()

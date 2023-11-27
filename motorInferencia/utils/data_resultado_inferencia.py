@@ -68,15 +68,27 @@ class DataSetResultadoInferencia:
                     + str(inferencia_resultado.id_tramite),
                     "url_tramite": STLService.consumo_tramite_soap(
                         inferencia_resultado.id_tramite
-                    )["url_tramite"],
+                    ).get("url_tramite")
+                    if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
+                    else None,
                     "estado": inferencia_resultado.estado,
                     "id_tramite": inferencia_resultado.id_tramite,
+                    # "url_redireccion": STLService.consumo_tramite_soap(
+                    #     inferencia_resultado.id_tramite
+                    # )["url_redireccion"],
                     "url_redireccion": STLService.consumo_tramite_soap(
                         inferencia_resultado.id_tramite
-                    )["url_redireccion"],
+                    ).get("url_redireccion")
+                    if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
+                    else None,
+                    # "login": STLService.consumo_tramite_soap(
+                    #     inferencia_resultado.id_tramite
+                    # )["login"],
                     "login": STLService.consumo_tramite_soap(
                         inferencia_resultado.id_tramite
-                    )["login"],
+                    ).get("login")
+                    if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
+                    else None,
                 },
             )
             if inferencia_resultado.categoria == "informacion"
