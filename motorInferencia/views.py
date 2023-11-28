@@ -30,9 +30,6 @@ class InferirConsulta(APIView):
 
         try:
             response_motor_inferencia = motor_inferencia(consulta=body.get("mensaje"))
-
-            print("Respuesta: ", response_motor_inferencia)
-
             # Enviando datos a CMI
             # cmi_service.envio_data(
             #     {

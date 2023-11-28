@@ -21,6 +21,6 @@ class MotorinferenciaConfig(AppConfig):
 
     def async_get_instance(self):
         # WSO2Service.generar_token()
-        # DataSetMotorInferencia.get_instance()
-        # DataSetResultadoInferencia.get_instance()
         STLService.consumo_tramite_soap()
+        DataSetResultadoInferencia.get_instance()
+        DataSetMotorInferencia.get_instance()

@@ -1,6 +1,8 @@
 """
 Gestión de Inferencias en caché
 """
+import json
+
 from bson import ObjectId
 from decouple import config
 from django.core.cache import cache
@@ -41,7 +43,7 @@ class DataSetResultadoInferencia:
         instance.append(new_inferencia_data)
 
         # Actualizar la instancia en la caché
-        cache.set(cls._instance_key, instance, timeout=None)
+        cache.set(cls._instance_key, json.dumps(instance), timeout=None)
 
         return instance
 
@@ -49,6 +51,8 @@ class DataSetResultadoInferencia:
     def _create_inferencia_data():
         """Creando y clasficando data de Inferencia"""
         from motorInferencia.models import InferenciaModel
+
+        instancia_stl = json.loads(cache.get("tramites_stl"))
 
         InferenciaModel.ensure_indexes()
 
@@ -66,29 +70,34 @@ class DataSetResultadoInferencia:
                     "url_stl": config("URL_STL")
                     + config("FICHA_TRAMITE")
                     + str(inferencia_resultado.id_tramite),
-                    "url_tramite": STLService.consumo_tramite_soap(
-                        inferencia_resultado.id_tramite
+                    # "url_tramite": STLService.consumo_tramite_soap(
+                    #     inferencia_resultado.id_tramite
+                    # ).get("url_tramite")
+                    # if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
+                    # else None,
+                    "url_tramite": instancia_stl.get(
+                        str(inferencia_resultado.id_tramite)
                     ).get("url_tramite")
-                    if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
+                    if instancia_stl.get(str(inferencia_resultado.id_tramite))
                     else None,
                     "estado": inferencia_resultado.estado,
                     "id_tramite": inferencia_resultado.id_tramite,
                     # "url_redireccion": STLService.consumo_tramite_soap(
                     #     inferencia_resultado.id_tramite
                     # )["url_redireccion"],
-                    "url_redireccion": STLService.consumo_tramite_soap(
-                        inferencia_resultado.id_tramite
-                    ).get("url_redireccion")
-                    if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
-                    else None,
+                    # "url_redireccion": STLService.consumo_tramite_soap(
+                    #     inferencia_resultado.id_tramite
+                    # ).get("url_redireccion")
+                    # if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
+                    # else None,
                     # "login": STLService.consumo_tramite_soap(
                     #     inferencia_resultado.id_tramite
                     # )["login"],
-                    "login": STLService.consumo_tramite_soap(
-                        inferencia_resultado.id_tramite
-                    ).get("login")
-                    if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
-                    else None,
+                    # "login": STLService.consumo_tramite_soap(
+                    #     inferencia_resultado.id_tramite
+                    # ).get("login")
+                    # if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
+                    # else None,
                 },
             )
             if inferencia_resultado.categoria == "informacion"

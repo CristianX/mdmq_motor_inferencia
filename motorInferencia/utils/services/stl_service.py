@@ -25,8 +25,6 @@ class STLService:
             dict | Response: Un diccionario con los detalles del trámite o una respuesta de error.
         """
 
-        print("Entrando al consumo del SOAP STL")
-
         try:
             client = Client(
                 config("URL_STL_TIPO_TRAMITE")
@@ -38,16 +36,12 @@ class STLService:
                 t["_x003C_TipoTramiteId_x003E_k__BackingField"]: t for t in resultado
             }
 
-            # Aquí se clasifican y aplican las condiciones a todos los trámites
             tramites_clasificados = {}
             for tr_id, tramite in tramites_por_id.items():
                 clasificado = STLService.clasificar_tramite(tramite)
                 tramites_clasificados[tr_id] = clasificado
 
-            # Finalmente, puedes guardar todos los trámites clasificados en Redis
             cache.set("tramites_stl", json.dumps(tramites_clasificados), timeout=None)
-
-            print("Tramites de stl: ", cache.get("tramites_stl"))
 
             # return tramites_clasificados
 
@@ -70,7 +64,7 @@ class STLService:
             )
         except (
             Exception
-        ) as e:  # Esta es una captura general para otros errores imprevistos
+        ) as e:
             return Response(
                 {"message": f"Error inesperado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
