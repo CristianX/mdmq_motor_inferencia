@@ -7,8 +7,6 @@ from bson import ObjectId
 from decouple import config
 from django.core.cache import cache
 
-from .services.stl_service import STLService
-
 # pylint: disable=no-member
 
 

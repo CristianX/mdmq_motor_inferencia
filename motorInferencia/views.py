@@ -637,29 +637,29 @@ class Inferencia(APIView):
 
                 print("Inferencia a actualizar", inferencia_dict)
 
-                cmi_service.envio_data(
-                    {
-                        "SISTEMA": "MOTOR_INFERENCIA",
-                        "tipo_peticion": "PUT",
-                        "coleccion": "Inferencias",
-                        "regla": str(inferencia_dict.get("rule")),
-                        "estado": inferencia_dict.get("estado", None),
-                        "categoria": inferencia_dict.get("categoria", None),
-                        "fecha_creacion": str(inferencia_dict.get("fecha_creacion")),
-                        "usuario_creacion": inferencia_dict.get("usuario_creacion"),
-                        "dispositivo_creacion": inferencia_dict.get(
-                            "dispositivo_creacion"
-                        ),
-                        "fecha_modificacion": str(
-                            inferencia_dict.get("fecha_modificacion")
-                        ),
-                        "nombre_tramite": inferencia_dict.get("nombre_tramite"),
-                        "dependencia_tramite": inferencia_dict.get(
-                            "dependencia_tramite"
-                        ),
-                        "url_stl": inferencia_dict.get("url_stl", None),
-                    }
-                )
+                # cmi_service.envio_data(
+                #     {
+                #         "SISTEMA": "MOTOR_INFERENCIA",
+                #         "tipo_peticion": "PUT",
+                #         "coleccion": "Inferencias",
+                #         "regla": str(inferencia_dict.get("rule")),
+                #         "estado": inferencia_dict.get("estado", None),
+                #         "categoria": inferencia_dict.get("categoria", None),
+                #         "fecha_creacion": str(inferencia_dict.get("fecha_creacion")),
+                #         "usuario_creacion": inferencia_dict.get("usuario_creacion"),
+                #         "dispositivo_creacion": inferencia_dict.get(
+                #             "dispositivo_creacion"
+                #         ),
+                #         "fecha_modificacion": str(
+                #             inferencia_dict.get("fecha_modificacion")
+                #         ),
+                #         "nombre_tramite": inferencia_dict.get("nombre_tramite"),
+                #         "dependencia_tramite": inferencia_dict.get(
+                #             "dependencia_tramite"
+                #         ),
+                #         "url_stl": inferencia_dict.get("url_stl", None),
+                #     }
+                # )
 
                 inferencia.save()
                 return Response(

@@ -111,7 +111,6 @@ def motor_inferencia(consulta):
                 posible_results[action_vector] = fact["resultado"]
 
     if posible_results:
-        print("Resultados posibles: ", posible_results)
         return {"found": True, "resultado": posible_results}
     else:
         try:
