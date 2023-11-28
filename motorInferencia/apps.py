@@ -4,6 +4,7 @@ from django.apps import AppConfig
 
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
+from .utils.services.stl_service import STLService
 from .utils.services.wso2_service import WSO2Service
 
 
@@ -20,5 +21,6 @@ class MotorinferenciaConfig(AppConfig):
 
     def async_get_instance(self):
         # WSO2Service.generar_token()
-        DataSetMotorInferencia.get_instance()
-        DataSetResultadoInferencia.get_instance()
+        # DataSetMotorInferencia.get_instance()
+        # DataSetResultadoInferencia.get_instance()
+        STLService.consumo_tramite_soap()

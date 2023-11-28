@@ -10,8 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
+import redis
 from decouple import config
 from mongoengine import connect
 
@@ -99,6 +101,29 @@ connect(
     host=config("BDD_HOST"),
     port=int(config("BDD_PORT")),
 )
+
+# BDD Caché
+redis_instance = redis.StrictRedis(
+    host="172.22.4.160",
+    port="7044",
+    db="Motor_Inferencia",
+    password="develops160",
+    decode_responses=True,
+)
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://172.22.4.160:7044/Motor_Inferencia",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": "develops160",
+        },
+    }
+}
+
+CACHE_TTL = 60 * 15
+CACHE_PREFIX = "default"
 
 
 # Password validation

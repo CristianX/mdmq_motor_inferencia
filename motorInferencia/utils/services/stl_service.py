@@ -1,9 +1,7 @@
-"""
-Servicio de STL para obtener toda la data del servicio SOAP,
-la data devuelta se lo poarsea con zeep ya que es un XML
+import json
 
-"""
 from decouple import config
+from django.core.cache import cache
 from requests.exceptions import RequestException
 from rest_framework import status
 from rest_framework.response import Response
@@ -17,17 +15,18 @@ class STLService:
     """
 
     @staticmethod
-    def consumo_tramite_soap(tramite_id):
+    def consumo_tramite_soap():
         """
         Consume el servicio SOAP de STL para obtener información detallada de un trámite
         específico basado en su ID.
 
-        Args:
-            tramite_id (Any): El ID del trámite a consultar.
 
         Returns:
             dict | Response: Un diccionario con los detalles del trámite o una respuesta de error.
         """
+
+        print("Entrando al consumo del SOAP STL")
+
         try:
             client = Client(
                 config("URL_STL_TIPO_TRAMITE")
@@ -39,37 +38,18 @@ class STLService:
                 t["_x003C_TipoTramiteId_x003E_k__BackingField"]: t for t in resultado
             }
 
-            tramite_consultado = tramites_por_id.get(tramite_id)
+            # Aquí se clasifican y aplican las condiciones a todos los trámites
+            tramites_clasificados = {}
+            for tr_id, tramite in tramites_por_id.items():
+                clasificado = STLService.clasificar_tramite(tramite)
+                tramites_clasificados[tr_id] = clasificado
 
-            url_formulario = tramite_consultado[
-                "_x003C_UrlFormulario_x003E_k__BackingField"
-            ]
+            # Finalmente, puedes guardar todos los trámites clasificados en Redis
+            cache.set("tramites_stl", json.dumps(tramites_clasificados), timeout=None)
 
-            if url_formulario is not None:
-                if url_formulario == "/MDMQ_Tramites/Solicitud?strestado=1":
-                    return {
-                        "url_tramite": config("URL_LOGIN") + str(tramite_id),
-                        "url_redireccion": config("URL_STL") + url_formulario,
-                        "login": True,
-                    }
-                elif "strestado=2" in url_formulario:
-                    return {
-                        "url_tramite": config("URL_LOGIN") + str(tramite_id),
-                        "url_redireccion": url_formulario + "&token=",
-                        "login": True,
-                    }
-                else:
-                    return {
-                        "url_tramite": url_formulario,
-                        "url_redireccion": url_formulario,
-                        "login": False,
-                    }
-            else:
-                return {
-                    "url_tramite": None,
-                    "url_redireccion": None,
-                    "login": False,
-                }
+            print("Tramites de stl: ", cache.get("tramites_stl"))
+
+            # return tramites_clasificados
 
         except Fault as fault:
             return Response(
@@ -95,3 +75,44 @@ class STLService:
                 {"message": f"Error inesperado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    @staticmethod
+    def clasificar_tramite(tramite):
+        """
+        Clasifica un trámite según condiciones específicas.
+
+        Args:
+            tramite (dict): Los detalles del trámite.
+
+        Returns:
+            dict: Un diccionario con los detalles clasificados del trámite.
+        """
+        url_formulario = tramite["_x003C_UrlFormulario_x003E_k__BackingField"]
+
+        if url_formulario is not None:
+            if url_formulario == "/MDMQ_Tramites/Solicitud?strestado=1":
+                return {
+                    "url_tramite": config("URL_LOGIN")
+                    + str(tramite["_x003C_TipoTramiteId_x003E_k__BackingField"]),
+                    "url_redireccion": config("URL_STL") + url_formulario,
+                    "login": True,
+                }
+            elif "strestado=2" in url_formulario:
+                return {
+                    "url_tramite": config("URL_LOGIN")
+                    + str(tramite["_x003C_TipoTramiteId_x003E_k__BackingField"]),
+                    "url_redireccion": url_formulario + "&token=",
+                    "login": True,
+                }
+            else:
+                return {
+                    "url_tramite": url_formulario,
+                    "url_redireccion": url_formulario,
+                    "login": False,
+                }
+        else:
+            return {
+                "url_tramite": None,
+                "url_redireccion": None,
+                "login": False,
+            }
