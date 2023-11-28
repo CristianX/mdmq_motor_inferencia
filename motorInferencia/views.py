@@ -1,5 +1,8 @@
+import json
+
 from bson import ObjectId
 from decouple import config
+from django.core.cache import cache
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -453,6 +456,7 @@ class Keyword(APIView):
 
 class Inferencia(APIView):
     def get(self, request, *args, **kwargs):
+        instancia_stl = json.loads(cache.get("tramites_stl"))
         excluded_fields = [
             "usuario_creacion",
             "fecha_creacion",
@@ -484,20 +488,28 @@ class Inferencia(APIView):
                     inf_dict["url_stl"] = config("URL_STL") + str(
                         inf_dict["id_tramite"]
                     )
-                    inf_dict["url_tramite"] = STLService.consumo_tramite_soap(
-                        inf_dict["id_tramite"]
-                    )["url_tramite"]
-                    inf_dict["url_redireccion"] = STLService.consumo_tramite_soap(
-                        inf_dict["id_tramite"]
-                    )["url_redireccion"]
-                    inf_dict["login"] = STLService.consumo_tramite_soap(
-                        inf_dict["id_tramite"]
-                    )["login"]
+                    inf_dict["url_tramite"] = (
+                        instancia_stl.get(str(inf_dict["id_tramite"])).get(
+                            "url_tramite"
+                        )
+                        if instancia_stl.get(str(inf_dict["id_tramite"]))
+                        else None
+                    )
+                    inf_dict["url_redireccion"] = (
+                        instancia_stl.get(str(inf_dict["id_tramite"])).get(
+                            "url_redireccion"
+                        )
+                        if instancia_stl.get(str(inf_dict["id_tramite"]))
+                        else None
+                    )
+                    inf_dict["login"] = (
+                        instancia_stl.get(str(inf_dict["id_tramite"])).get("login")
+                        if instancia_stl.get(str(inf_dict["id_tramite"]))
+                        else None
+                    )
                 elif inf_dict["categoria"] == "pasarela_pago":
                     inf_dict["url_pasarela_pago"] = config("PASARELA_PAGO")
 
-                # return Response(inf_dict, status=status.HTTP_200_OK)
-                # TODO: implementación para pruebas
                 return Response(inf_dict, status=status.HTTP_200_OK)
 
             except Exception as e:
@@ -521,15 +533,25 @@ class Inferencia(APIView):
                         inf_dict["url_stl"] = config("URL_STL") + str(
                             inf_dict["id_tramite"]
                         )
-                        inf_dict["url_tramite"] = STLService.consumo_tramite_soap(
-                            inf_dict["id_tramite"]
-                        )["url_tramite"]
-                        inf_dict["url_redireccion"] = STLService.consumo_tramite_soap(
-                            inf_dict["id_tramite"]
-                        )["url_redireccion"]
-                        inf_dict["login"] = STLService.consumo_tramite_soap(
-                            inf_dict["id_tramite"]
-                        )["login"]
+                        inf_dict["url_tramite"] = (
+                            instancia_stl.get(str(inf_dict["id_tramite"])).get(
+                                "url_tramite"
+                            )
+                            if instancia_stl.get(str(inf_dict["id_tramite"]))
+                            else None
+                        )
+                        inf_dict["url_redireccion"] = (
+                            instancia_stl.get(str(inf_dict["id_tramite"])).get(
+                                "url_redireccion"
+                            )
+                            if instancia_stl.get(str(inf_dict["id_tramite"]))
+                            else None
+                        )
+                        inf_dict["login"] = (
+                            instancia_stl.get(str(inf_dict["id_tramite"])).get("login")
+                            if instancia_stl.get(str(inf_dict["id_tramite"]))
+                            else None
+                        )
                         inferencias_list.append(inf_dict)
                     elif inf_dict["categoria"] == "pasarela_pago":
                         inf_dict["url_pasarela_pago"] = config("PASARELA_PAGO")

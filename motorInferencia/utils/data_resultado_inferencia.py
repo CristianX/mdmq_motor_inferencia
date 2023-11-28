@@ -70,11 +70,6 @@ class DataSetResultadoInferencia:
                     "url_stl": config("URL_STL")
                     + config("FICHA_TRAMITE")
                     + str(inferencia_resultado.id_tramite),
-                    # "url_tramite": STLService.consumo_tramite_soap(
-                    #     inferencia_resultado.id_tramite
-                    # ).get("url_tramite")
-                    # if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
-                    # else None,
                     "url_tramite": instancia_stl.get(
                         str(inferencia_resultado.id_tramite)
                     ).get("url_tramite")
@@ -82,17 +77,16 @@ class DataSetResultadoInferencia:
                     else None,
                     "estado": inferencia_resultado.estado,
                     "id_tramite": inferencia_resultado.id_tramite,
-                    # "url_redireccion": STLService.consumo_tramite_soap(
-                    #     inferencia_resultado.id_tramite
-                    # )["url_redireccion"],
-                    # "url_redireccion": STLService.consumo_tramite_soap(
-                    #     inferencia_resultado.id_tramite
-                    # ).get("url_redireccion")
-                    # if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
-                    # else None,
-                    # "login": STLService.consumo_tramite_soap(
-                    #     inferencia_resultado.id_tramite
-                    # )["login"],
+                    "url_redireccion": instancia_stl.get(
+                        str(inferencia_resultado.id_tramite)
+                    ).get("url_redireccion")
+                    if instancia_stl.get(str(inferencia_resultado.id_tramite))
+                    else None,
+                    "login": instancia_stl.get(
+                        str(inferencia_resultado.id_tramite)
+                    ).get("login")
+                    if instancia_stl.get(str(inferencia_resultado.id_tramite))
+                    else None,
                     # "login": STLService.consumo_tramite_soap(
                     #     inferencia_resultado.id_tramite
                     # ).get("login")
