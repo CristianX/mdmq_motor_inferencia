@@ -40,6 +40,8 @@ class DataSetResultadoInferencia:
         # Añadir nuevos datos a la instancia
         instance.append(new_inferencia_data)
 
+        cache.delete(cls._instance_key)
+
         # Actualizar la instancia en la caché
         cache.set(cls._instance_key, json.dumps(instance), timeout=None)
 

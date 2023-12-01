@@ -1,4 +1,7 @@
 """Cache de Fases"""
+
+import json
+
 from django.core.cache import cache
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -9,6 +12,7 @@ vectorizer = None
 
 class DataSetMotorInferencia:
     """Modificación de Caché registrada de frases"""
+
     _instance_key = "dataset_motor_inferencia"
     _last_update_key = "last_update_dataset_motor_inferencia"
 
@@ -33,6 +37,8 @@ class DataSetMotorInferencia:
 
         # Añadir nuevos datos a la instancia
         instance.append(new_keyword_data)
+
+        cache.delete(cls._instance_key)
 
         # Entrenar vectorizado
         cls._train_vectorizer(instance)
@@ -83,7 +89,6 @@ class DataSetMotorInferencia:
 
     @classmethod
     def refresh_dataset(cls):
-
         """Refrescando toda la data de la caché"""
 
         # Eliminar data de la cache
