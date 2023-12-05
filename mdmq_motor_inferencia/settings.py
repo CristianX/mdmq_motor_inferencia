@@ -10,11 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+# TODO: Temporal hasta obtener fecha máxima de actualización de STL
+import atexit
 import os
 from pathlib import Path
 
 import redis
 from decouple import config
+from django.core.cache import cache
 from mongoengine import connect
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -104,20 +107,20 @@ connect(
 
 # BDD Caché
 redis_instance = redis.StrictRedis(
-    host="172.22.4.160",
-    port="7044",
-    db="Motor_Inferencia",
-    password="develops160",
+    host=config("HOST_REDIS"),
+    port=config("PUERTO_REDIS"),
+    db=config("DB_ALIAS_REDIS"),
+    password=config("PASSWORD_REDIS"),
     decode_responses=True,
 )
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": f"redis://172.22.4.160:7044/Motor_Inferencia",
+        "LOCATION": f"redis://{config('HOST_REDIS')}:{config('PUERTO_REDIS')}/{config('DB_ALIAS_REDIS')}",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "PASSWORD": "develops160",
+            "PASSWORD": config("PASSWORD_REDIS"),
         },
     }
 }
@@ -171,3 +174,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True
 
 # CORS_ALLOWED_ORIGINS = [config("URL_ALLOW_FRONTEND")]
+
+
+# TODO: temporal hasta utilizar fecha máxima de actualización en STL
+def limpiar_cache_redis():
+    cache.clear()
+
+
+atexit.register(limpiar_cache_redis)

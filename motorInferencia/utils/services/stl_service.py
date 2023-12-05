@@ -62,9 +62,7 @@ class STLService:
                 {"message": f"Error en la solicitud HTTP: {request_exception}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        except (
-            Exception
-        ) as e:
+        except Exception as e:
             return Response(
                 {"message": f"Error inesperado: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
