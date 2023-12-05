@@ -56,11 +56,24 @@ def embedded_to_dict(obj):
         return obj
 
 
+def init_motor():
+    global engine, data_inferencia, keywords
+
+    # Carga inicial del motor
+    keywords = dict(DataSetMotorInferencia.get_instance())
+    raw_data = DataSetResultadoInferencia.get_instance()
+    print("Inicializando motor: ")
+
+    data_inferencia = {rule: embedded_to_dict(value) for rule, value in raw_data}
+    engine = InferenceEngine()
+    engine.reset()
+
+
 def update_data():
     global engine, data_inferencia, keywords
-    keywords = dict(DataSetMotorInferencia.get_instance())
+    keywords = dict(DataSetMotorInferencia.refresh_dataset())
 
-    raw_data = DataSetResultadoInferencia.get_instance()
+    raw_data = DataSetResultadoInferencia.refresh_dataset()
     data_inferencia = {rule: embedded_to_dict(value) for rule, value in raw_data}
     engine = InferenceEngine()
     engine.reset()
@@ -89,6 +102,9 @@ def obtener_accion_similar(query, threshold=float(config("PORCENTAJE_TOLERANCIA"
 def motor_inferencia(consulta):
     global engine, data_inferencia
 
+    if engine is None:
+        init_motor()
+
     if (
         DataSetResultadoInferencia.data_changed()
         or DataSetMotorInferencia.data_changed()
@@ -102,13 +118,14 @@ def motor_inferencia(consulta):
     posible_results = {}
 
     for action_vector in actions_vector:
-        engine.reset()
-        engine.declare(Command(action=action_vector))
-        engine.run()
-        for fact_key in engine.facts:
-            fact = engine.facts[fact_key]
-            if isinstance(fact, Resultado):
-                posible_results[action_vector] = fact["resultado"]
+        if engine is not None:  # Agrega esta comprobación
+            engine.reset()
+            engine.declare(Command(action=action_vector))
+            engine.run()
+            for fact_key in engine.facts:
+                fact = engine.facts[fact_key]
+                if isinstance(fact, Resultado):
+                    posible_results[action_vector] = fact["resultado"]
 
     if posible_results:
         return {"found": True, "resultado": posible_results}

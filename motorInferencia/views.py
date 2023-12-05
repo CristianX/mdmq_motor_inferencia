@@ -40,7 +40,6 @@ class InferirConsulta(APIView):
             #         "consulta": body.get("mensaje"),
             #     }
             # )
-            print("Respuesta: ", response_motor_inferencia)
             return Response(
                 {
                     "data": response_motor_inferencia,

@@ -1,6 +1,7 @@
 """
 Gestión de Inferencias en caché
 """
+import datetime
 import json
 
 from bson import ObjectId
@@ -164,9 +165,20 @@ class DataSetResultadoInferencia:
 
         last_update = cache.get(cls._last_update_key)
 
-        if last_update is None or last_modification > last_update:
+        if last_update is None:
+            cache.set(cls._last_update_key, last_modification, timeout=None)
+            return False
+
+        if (
+            isinstance(last_update, datetime.datetime)
+            and last_modification > last_update
+        ):
             cache.set(cls._last_update_key, last_modification, timeout=None)
             return True
+
+        # if last_update is None or last_modification > last_update:
+        #     cache.set(cls._last_update_key, last_modification, timeout=None)
+        #     return True
 
         return False
 

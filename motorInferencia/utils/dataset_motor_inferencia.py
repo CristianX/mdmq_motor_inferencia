@@ -1,6 +1,6 @@
 """Cache de Fases"""
 
-import json
+import datetime
 
 from django.core.cache import cache
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -81,7 +81,14 @@ class DataSetMotorInferencia:
 
         last_update = cache.get(cls._last_update_key)
 
-        if last_update is None or last_modification > last_update:
+        if last_update is None:
+            cache.set(cls._last_update_key, last_modification, timeout=None)
+            return False
+
+        if (
+            isinstance(last_update, datetime.datetime)
+            and last_modification > last_update
+        ):
             cache.set(cls._last_update_key, last_modification, timeout=None)
             return True
 
@@ -93,13 +100,19 @@ class DataSetMotorInferencia:
 
         # Eliminar data de la cache
         cache.delete(cls._instance_key)
+        cache.delete("tfidf_vectorizer")
 
         instance = cls._create_keywords_data()
+
+        # Entrenar vectorizado
+        cls._train_vectorizer(instance)
+
         cache.set(cls._instance_key, instance, timeout=None)
         return instance
 
     @classmethod
     def _train_vectorizer(cls, data_keywords):
+        cache.delete("tfidf_vectorizer")
         keywords_list = [keyword for keyword, action in data_keywords]
-        vectorizer = TfidfVectorizer().fit(keywords_list)
-        cache.set("tfidf_vectorizer", vectorizer, timeout=None)
+        vectorizado = TfidfVectorizer().fit(keywords_list)
+        cache.set("tfidf_vectorizer", vectorizado, timeout=None)
