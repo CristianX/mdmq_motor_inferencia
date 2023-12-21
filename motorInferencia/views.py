@@ -195,7 +195,7 @@ class Rule(APIView):
                     {"message": "Regla no encontrada"}, status=status.HTTP_404_NOT_FOUND
                 )
 
-            rule_to_dict = rule.to_mongo().to_mongo().to_dict()
+            rule_to_dict = rule.to_mongo().to_dict()
 
             # cmi_service.envio_data(
             #     {
