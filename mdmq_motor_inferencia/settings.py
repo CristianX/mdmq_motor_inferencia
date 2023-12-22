@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 # TODO: Temporal hasta obtener fecha máxima de actualización de STL
 import atexit
-import os
 from pathlib import Path
 
 import redis
@@ -34,7 +33,6 @@ SECRET_KEY = "django-insecure-x1cr-c426u!g6$bn8vhpl@ly$y3=2-rgc1+*mv)z276jb@vk74
 DEBUG = True
 
 ALLOWED_HOSTS = [config("HOST_PERMITIDO")]
-
 
 # Application definition
 
@@ -171,9 +169,9 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Configuración CORS
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 
-# CORS_ALLOWED_ORIGINS = [config("URL_ALLOW_FRONTEND")]
+CORS_ALLOWED_ORIGINS = [config("FRONTEND_CONSUMO")]
 
 
 # TODO: temporal hasta utilizar fecha máxima de actualización en STL
