@@ -40,8 +40,12 @@
 
 - pip install experta
 
-## Instalar el requeriments.txt
+## Colocar todas las dependencias requeridas
 
 - pip freeze > requirements.txt (Esto tomará todas las dependencias que se tiene en el entorno)
+
+## Instalar las dependencias
+
+- pip install -r requirements.txt
 
 (Versión compatible con python 3.8)
