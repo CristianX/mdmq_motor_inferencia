@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from motorInferencia.models import (
+    CatalogoDependenciasModel,
     InferenciaModel,
     KeywordsModel,
     KeyWordsNoMappingModel,
@@ -827,5 +828,26 @@ class Tuplas(APIView):
         else:
             return Response(
                 {"message": "Inferencias no existentes"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class Dependencias(APIView):
+    def post(self, request):
+        body = request.data
+
+        try:
+            dependencia = CatalogoDependenciasModel(
+                nombre_dependencia=body.get("nombre_dependencia").title(),
+                usuario_creacion=body.get("usuario_creacion"),
+                dispositivo_creacion=body.get("dispositivo_creacion"),
+                usuario_modificacion=body.get("usuario_modificacion"),
+                dispositivo_modificacion=body.get("dispositivo_modificacion"),
+            )
+
+            dependencia.save()
+        except Exception as e:
+            return Response(
+                {"message": f"Error en la creación de una nueva Dependencia {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
