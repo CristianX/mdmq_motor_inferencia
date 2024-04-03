@@ -7,9 +7,13 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from motorInferencia.models import (CatalogoDependenciasModel, InferenciaModel,
-                                    KeywordsModel, KeyWordsNoMappingModel,
-                                    RuleModel)
+from motorInferencia.models import (
+    CatalogoDependenciasModel,
+    InferenciaModel,
+    KeywordsModel,
+    KeyWordsNoMappingModel,
+    RuleModel,
+)
 
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
