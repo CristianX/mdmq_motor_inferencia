@@ -135,3 +135,32 @@ class KeyWordsNoMappingModel(Document):
                 "fecha_creacion": str(self.fecha_creacion),
             }
         )
+
+
+class CatalogoDependenciasModel(Document):
+    """Colección de catálogo de dependencias"""
+
+    nombre_dependencia = StringField(max_length=500, required=True, unique=True)
+    fecha_creacion = DateTimeField(default=datetime.utcnow)
+    usuario_creacion = StringField(
+        max_length=150, blank=False, null=False, required=True
+    )
+    dispositivo_creacion = StringField(
+        max_length=150, blank=False, null=False, required=True
+    )
+    fecha_modificacion = DateTimeField(default=datetime.utcnow)
+    usuario_modificacion = StringField(max_length=150)
+    dispositivo_modificacion = StringField(max_length=150)
+
+    meta = {
+        "indexes": [
+            "-fecha_modificacion",
+        ]
+    }
+
+    def save(self, *args, **kwargs):
+        self.fecha_modificacion = datetime.utcnow()
+        return super(CatalogoDependenciasModel, self).save(*args, **kwargs)
+
+
+CatalogoDependenciasModel.ensure_indexes()
