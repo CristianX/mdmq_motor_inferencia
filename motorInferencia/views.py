@@ -7,13 +7,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from motorInferencia.models import (
-    CatalogoDependenciasModel,
-    InferenciaModel,
-    KeywordsModel,
-    KeyWordsNoMappingModel,
-    RuleModel,
-)
+from motorInferencia.models import (CatalogoDependenciasModel, InferenciaModel,
+                                    KeywordsModel, KeyWordsNoMappingModel,
+                                    RuleModel)
 
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
@@ -832,13 +828,13 @@ class Tuplas(APIView):
             )
 
 
-class Dependencias(APIView):
+class Dependencia(APIView):
     def post(self, request):
         body = request.data
 
         try:
             dependencia = CatalogoDependenciasModel(
-                nombre_dependencia=body.get("nombre_dependencia").title(),
+                nombre_dependencia=body.get("nombre_dependencia").upper(),
                 usuario_creacion=body.get("usuario_creacion"),
                 dispositivo_creacion=body.get("dispositivo_creacion"),
                 usuario_modificacion=body.get("usuario_modificacion"),
@@ -846,6 +842,11 @@ class Dependencias(APIView):
             )
 
             dependencia.save()
+
+            return Response(
+                {"message": "Dependencia creada exitosamente"},
+                status=status.HTTP_201_CREATED,
+            )
         except Exception as e:
             return Response(
                 {"message": f"Error en la creación de una nueva Dependencia {e}"},
