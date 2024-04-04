@@ -1,10 +1,12 @@
 """
 Gestión de Inferencias en caché
 """
+
 import datetime
 import json
 
 from bson import ObjectId
+from bson.errors import InvalidId
 from decouple import config
 from django.core.cache import cache
 
@@ -18,6 +20,24 @@ class DataSetResultadoInferencia:
 
     _instance_key = "dataset_resultado_inferencia"
     _last_update_key = "last_update_dataset_resultado_inferencia"
+
+    # TODO: solución temporal para cambio de paradigma en bdd
+    @staticmethod
+    def obtener_nombre_dependencia(dependencia_tramite):
+
+        from motorInferencia.models import CatalogoDependenciasModel
+
+        try:
+            dependencia = (
+                CatalogoDependenciasModel.objects(id=ObjectId(dependencia_tramite))
+                .only("nombre_dependencia")
+                .first()
+            )
+            return (
+                dependencia.nombre_dependencia if dependencia else dependencia_tramite
+            )
+        except InvalidId:
+            return dependencia_tramite
 
     @classmethod
     def get_instance(cls):
@@ -62,90 +82,111 @@ class DataSetResultadoInferencia:
         # Asignando data a instancia por primera vez
         data_resultado_inferencia = [
             (
-                inferencia_resultado.rule.rule,
-                {
-                    "id": str(ObjectId(inferencia_resultado.id)),
-                    "categoria": inferencia_resultado.categoria,
-                    "nombre_tramite": inferencia_resultado.nombre_tramite,
-                    "dependencia_tramite": inferencia_resultado.dependencia_tramite,
-                    "url_stl": config("URL_STL")
-                    + config("FICHA_TRAMITE")
-                    + str(inferencia_resultado.id_tramite),
-                    "url_tramite": instancia_stl.get(
-                        str(inferencia_resultado.id_tramite)
-                    ).get("url_tramite")
-                    if instancia_stl.get(str(inferencia_resultado.id_tramite))
-                    else None,
-                    "estado": inferencia_resultado.estado,
-                    "id_tramite": inferencia_resultado.id_tramite,
-                    "url_redireccion": instancia_stl.get(
-                        str(inferencia_resultado.id_tramite)
-                    ).get("url_redireccion")
-                    if instancia_stl.get(str(inferencia_resultado.id_tramite))
-                    else None,
-                    "login": instancia_stl.get(
-                        str(inferencia_resultado.id_tramite)
-                    ).get("login")
-                    if instancia_stl.get(str(inferencia_resultado.id_tramite))
-                    else None,
-                    # "login": STLService.consumo_tramite_soap(
-                    #     inferencia_resultado.id_tramite
-                    # ).get("login")
-                    # if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
-                    # else None,
-                },
+                (
+                    inferencia_resultado.rule.rule,
+                    {
+                        "id": str(ObjectId(inferencia_resultado.id)),
+                        "categoria": inferencia_resultado.categoria,
+                        "nombre_tramite": inferencia_resultado.nombre_tramite,
+                        "dependencia_tramite": DataSetResultadoInferencia.obtener_nombre_dependencia(
+                            inferencia_resultado.dependencia_tramite
+                        ),
+                        "url_stl": config("URL_STL")
+                        + config("FICHA_TRAMITE")
+                        + str(inferencia_resultado.id_tramite),
+                        "url_tramite": (
+                            instancia_stl.get(str(inferencia_resultado.id_tramite)).get(
+                                "url_tramite"
+                            )
+                            if instancia_stl.get(str(inferencia_resultado.id_tramite))
+                            else None
+                        ),
+                        "estado": inferencia_resultado.estado,
+                        "id_tramite": inferencia_resultado.id_tramite,
+                        "url_redireccion": (
+                            instancia_stl.get(str(inferencia_resultado.id_tramite)).get(
+                                "url_redireccion"
+                            )
+                            if instancia_stl.get(str(inferencia_resultado.id_tramite))
+                            else None
+                        ),
+                        "login": (
+                            instancia_stl.get(str(inferencia_resultado.id_tramite)).get(
+                                "login"
+                            )
+                            if instancia_stl.get(str(inferencia_resultado.id_tramite))
+                            else None
+                        ),
+                        # "login": STLService.consumo_tramite_soap(
+                        #     inferencia_resultado.id_tramite
+                        # ).get("login")
+                        # if STLService.consumo_tramite_soap(inferencia_resultado.id_tramite)
+                        # else None,
+                    },
+                )
+                if inferencia_resultado.categoria == "informacion"
+                else (
+                    (
+                        inferencia_resultado.rule.rule,
+                        {
+                            "id": str(ObjectId(inferencia_resultado.id)),
+                            "categoria": inferencia_resultado.categoria,
+                            "nombre_tramite": inferencia_resultado.nombre_tramite,
+                            "dependencia_tramite": DataSetResultadoInferencia.obtener_nombre_dependencia(
+                                inferencia_resultado.dependencia_tramite
+                            ),
+                            "url_pasarela_pago": config("PASARELA_PAGO"),
+                            "estado": inferencia_resultado.estado,
+                        },
+                    )
+                    if inferencia_resultado.categoria == "pasarela_pago"
+                    else (
+                        (
+                            inferencia_resultado.rule.rule,
+                            {
+                                "id": str(ObjectId(inferencia_resultado.id)),
+                                "categoria": inferencia_resultado.categoria,
+                                "titulo": inferencia_resultado.titulo,
+                                "descripcion": inferencia_resultado.descripcion,
+                                "contactos": inferencia_resultado.contactos,
+                                "correo_electronico": inferencia_resultado.correo_electronico,
+                                "post_data": inferencia_resultado.post_data,
+                                "estado": inferencia_resultado.estado,
+                            },
+                        )
+                        if inferencia_resultado.categoria == "mensaje_bienvenida"
+                        else (
+                            (
+                                inferencia_resultado.rule.rule,
+                                {
+                                    "id": str(ObjectId(inferencia_resultado.id)),
+                                    "categoria": inferencia_resultado.categoria,
+                                    "nombre_formulario": inferencia_resultado.nombre_formulario,
+                                    "grupo_formulario": inferencia_resultado.grupo_formulario,
+                                    "url_formulario": inferencia_resultado.url_formulario,
+                                    "estado": inferencia_resultado.estado,
+                                },
+                            )
+                            if inferencia_resultado.categoria == "formulario"
+                            else (
+                                (
+                                    inferencia_resultado.rule.rule,
+                                    {
+                                        "id": str(ObjectId(inferencia_resultado.id)),
+                                        "categoria": inferencia_resultado.categoria,
+                                        "titulo_pregunta": inferencia_resultado.titulo_pregunta,
+                                        "respuesta_pregunta": inferencia_resultado.respuesta_pregunta,
+                                        "estado": inferencia_resultado.estado,
+                                    },
+                                )
+                                if inferencia_resultado.categoria
+                                == "preguntas_frecuentes"
+                                else None
+                            )
+                        )
+                    )
+                )
             )
-            if inferencia_resultado.categoria == "informacion"
-            else (
-                inferencia_resultado.rule.rule,
-                {
-                    "id": str(ObjectId(inferencia_resultado.id)),
-                    "categoria": inferencia_resultado.categoria,
-                    "nombre_tramite": inferencia_resultado.nombre_tramite,
-                    "dependencia_tramite": inferencia_resultado.dependencia_tramite,
-                    "url_pasarela_pago": config("PASARELA_PAGO"),
-                    "estado": inferencia_resultado.estado,
-                },
-            )
-            if inferencia_resultado.categoria == "pasarela_pago"
-            else (
-                inferencia_resultado.rule.rule,
-                {
-                    "id": str(ObjectId(inferencia_resultado.id)),
-                    "categoria": inferencia_resultado.categoria,
-                    "titulo": inferencia_resultado.titulo,
-                    "descripcion": inferencia_resultado.descripcion,
-                    "contactos": inferencia_resultado.contactos,
-                    "correo_electronico": inferencia_resultado.correo_electronico,
-                    "post_data": inferencia_resultado.post_data,
-                    "estado": inferencia_resultado.estado,
-                },
-            )
-            if inferencia_resultado.categoria == "mensaje_bienvenida"
-            else (
-                inferencia_resultado.rule.rule,
-                {
-                    "id": str(ObjectId(inferencia_resultado.id)),
-                    "categoria": inferencia_resultado.categoria,
-                    "nombre_formulario": inferencia_resultado.nombre_formulario,
-                    "grupo_formulario": inferencia_resultado.grupo_formulario,
-                    "url_formulario": inferencia_resultado.url_formulario,
-                    "estado": inferencia_resultado.estado,
-                },
-            )
-            if inferencia_resultado.categoria == "formulario"
-            else (
-                inferencia_resultado.rule.rule,
-                {
-                    "id": str(ObjectId(inferencia_resultado.id)),
-                    "categoria": inferencia_resultado.categoria,
-                    "titulo_pregunta": inferencia_resultado.titulo_pregunta,
-                    "respuesta_pregunta": inferencia_resultado.respuesta_pregunta,
-                    "estado": inferencia_resultado.estado,
-                },
-            )
-            if inferencia_resultado.categoria == "preguntas_frecuentes"
-            else None
             for inferencia_resultado in inferencias_resultado_response
             if inferencia_resultado.estado == "ACT"
         ]
