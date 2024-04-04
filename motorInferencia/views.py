@@ -19,7 +19,6 @@ from .utils.data_resultado_inferencia import DataSetResultadoInferencia
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
 from .utils.motor_inferencia import motor_inferencia
 from .utils.services.cmi_service import CMIService
-from .utils.services.stl_service import STLService
 
 # from django.forms.models import model_to_dict
 
@@ -49,7 +48,7 @@ class InferirConsulta(APIView):
             )
         except Exception as e:
             return Response(
-                f"Error en realizar consulta {e}",
+                f"Error en realizar consulta: {e}",
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -96,7 +95,7 @@ class Rule(APIView):
 
         except Exception as e:
             return Response(
-                {"message": f"Error en la creación de la nueva regla {e}"},
+                {"message": f"Error en la creación de la nueva regla: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -110,9 +109,9 @@ class Rule(APIView):
                         status=status.HTTP_404_NOT_FOUND,
                     )
                 return Response({"id": str(rule.id), "rule": rule.rule})
-            except:
+            except Exception as e:
                 return Response(
-                    {"message": "Error al obtener la regla"},
+                    {"message": f"Error al obtener la regla: {e}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         else:
@@ -282,7 +281,7 @@ class Keyword(APIView):
 
         except Exception as e:
             return Response(
-                {"message": f"Error en la creación de la nueva keyword {e}"},
+                {"message": f"Error en la creación de la nueva keyword: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -306,7 +305,7 @@ class Keyword(APIView):
                 )
             except Exception as e:
                 return Response(
-                    {"message": f"Error al obtener la keyword {e}"},
+                    {"message": f"Error al obtener la keyword: {e}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         else:
@@ -319,7 +318,7 @@ class Keyword(APIView):
                 return Response(data, status=status.HTTP_200_OK)
             except Exception as e:
                 return Response(
-                    {"message": f"Error al obtener las keywords {e}"},
+                    {"message": f"Error al obtener las keywords: {e}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -450,7 +449,7 @@ class Keyword(APIView):
 
         except Exception as e:
             return Response(
-                {"message": f"Error al eliminar la frase {e}"},
+                {"message": f"Error al eliminar la frase: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -611,7 +610,7 @@ class Inferencia(APIView):
             )
         except Exception as e:
             return Response(
-                f"Error al cargar datos {e}", status=status.HTTP_400_BAD_REQUEST
+                f"Error al cargar datos: {e}", status=status.HTTP_400_BAD_REQUEST
             )
 
     def put(self, request, *args, **kwargs):
@@ -670,7 +669,7 @@ class Inferencia(APIView):
 
             except Exception as e:
                 return Response(
-                    {"message": f"Error al actualizar la inferencia {e}"},
+                    {"message": f"Error al actualizar la inferencia: {e}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -788,7 +787,7 @@ class KeywordNoMapping(APIView):
             return Response(data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
-                {"message": f"Error al obtener las keywords {e}"},
+                {"message": f"Error al obtener las keywords: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -813,7 +812,7 @@ class KeywordsByRule(APIView):
 
         except Exception as e:
             return Response(
-                {"message": f"Error al obtener frases para esa regla {e}"},
+                {"message": f"Error al obtener frases para esa regla: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -853,6 +852,6 @@ class Dependencia(APIView):
             )
         except Exception as e:
             return Response(
-                {"message": f"Error en la creación de una nueva Dependencia {e}"},
+                {"message": f"Error en la creación de una nueva Dependencia: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
