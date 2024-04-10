@@ -1,4 +1,4 @@
-"""Cache de Fases"""
+"""Cache de Frases"""
 
 import datetime
 

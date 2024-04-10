@@ -1,6 +1,6 @@
 import json
 
-from bson import ObjectId
+from bson import ObjectId, errors
 from decouple import config
 from django.core.cache import cache
 from rest_framework import status
@@ -15,6 +15,7 @@ from motorInferencia.models import (
     RuleModel,
 )
 
+from .serializers import CatalogoDependenciaSerializer
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
 from .utils.motor_inferencia import motor_inferencia
@@ -895,3 +896,34 @@ class Dependencia(APIView):
                     {"message": f"Error al obtener dependencias: {e}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+
+    def put(self, request, **kwargs):
+
+        if "id" not in kwargs:
+            return Response(
+                {"message": "ID de la dependencia no proporcionado"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            dependencia = CatalogoDependenciaModel.objects.get(id=ObjectId(kwargs["id"]))
+        except CatalogoDependenciaModel.DoesNotExist:
+            return Response(
+                {"message": "Dependencia no encontrada"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except errors.InvalidId:
+            return Response(
+                {"message": "ID inválido proporcionado"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = CatalogoDependenciaSerializer(dependencia, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Dependencia actualizada exitosamente"},
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
