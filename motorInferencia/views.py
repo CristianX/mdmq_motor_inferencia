@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from motorInferencia.models import (
-    CatalogoDependenciasModel,
+    CatalogoDependenciaModel,
     InferenciaModel,
     KeywordsModel,
     KeyWordsNoMappingModel,
@@ -836,7 +836,7 @@ class Dependencia(APIView):
         body = request.data
 
         try:
-            dependencia = CatalogoDependenciasModel(
+            dependencia = CatalogoDependenciaModel(
                 nombre_dependencia=body.get("nombre_dependencia").upper(),
                 usuario_creacion=body.get("usuario_creacion"),
                 dispositivo_creacion=body.get("dispositivo_creacion"),
@@ -855,3 +855,43 @@ class Dependencia(APIView):
                 {"message": f"Error en la creación de una nueva Dependencia: {e}"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    def get(self, request, *args, **kwargs):
+        if "id" in kwargs:
+            try:
+                dependencia = CatalogoDependenciaModel.objects(
+                    id=ObjectId(kwargs.get("id"))
+                ).first()
+                if not dependencia:
+                    return Response(
+                        {"message": "Dependencia no encontrada"},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+                return Response(
+                    {
+                        "id": str(dependencia.id),
+                        "nombre_dependencia": dependencia.nombre_dependencia,
+                    },
+                    status=status.HTTP_200_OK,
+                )
+            except Exception as e:
+                return Response(
+                    {"message": f"Error al obtener la dependencia: {e}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            try:
+                dependencias = CatalogoDependenciaModel.objects()
+                data = [
+                    {
+                        "id": str(dependencia.id),
+                        "nombre_dependencia": dependencia.nombre_dependencia,
+                    }
+                    for dependencia in dependencias
+                ]
+                return Response(data, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response(
+                    {"message": f"Error al obtener dependencias: {e}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )

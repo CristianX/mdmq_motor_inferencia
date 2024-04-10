@@ -52,5 +52,6 @@ urlpatterns = [
         "keywords/by-rule/<rule_id>", KeywordsByRule.as_view(), name="keywords_by_rule"
     ),
     path("tuplas/", Tuplas.as_view(), name="tuplas"),
-    path("dependencia/", Dependencia.as_view(), name="dependencia"),
+    path("dependencia/", Dependencia.as_view(), name="dependencia_create"),
+    path("dependencia/<str:id>", Dependencia.as_view(), name="dependencia")
 ]

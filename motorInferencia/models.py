@@ -137,7 +137,7 @@ class KeyWordsNoMappingModel(Document):
         )
 
 
-class CatalogoDependenciasModel(Document):
+class CatalogoDependenciaModel(Document):
     """Colección de catálogo de dependencias"""
 
     nombre_dependencia = StringField(max_length=500, required=True, unique=True)
@@ -160,7 +160,7 @@ class CatalogoDependenciasModel(Document):
 
     def save(self, *args, **kwargs):
         self.fecha_modificacion = datetime.utcnow()
-        return super(CatalogoDependenciasModel, self).save(*args, **kwargs)
+        return super(CatalogoDependenciaModel, self).save(*args, **kwargs)
 
 
-CatalogoDependenciasModel.ensure_indexes()
+CatalogoDependenciaModel.ensure_indexes()

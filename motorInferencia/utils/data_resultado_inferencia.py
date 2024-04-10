@@ -25,11 +25,11 @@ class DataSetResultadoInferencia:
     @staticmethod
     def obtener_nombre_dependencia(dependencia_tramite):
 
-        from motorInferencia.models import CatalogoDependenciasModel
+        from motorInferencia.models import CatalogoDependenciaModel
 
         try:
             dependencia = (
-                CatalogoDependenciasModel.objects(id=ObjectId(dependencia_tramite))
+                CatalogoDependenciaModel.objects(id=ObjectId(dependencia_tramite))
                 .only("nombre_dependencia")
                 .first()
             )
