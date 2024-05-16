@@ -3,6 +3,7 @@ import json
 from bson import ObjectId
 from decouple import config
 from django.core.cache import cache
+from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -46,10 +47,20 @@ class InferirConsulta(APIView):
                 },
                 status=status.HTTP_200_OK,
             )
+        except Http404 as e:
+            return Response(
+                {
+                    "error": str(e),
+                    "url": "https://pam.quito.gob.ec/PAM/Inicio.aspx",
+                    "contactos": "3952300",
+                    "ext": "20127",
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
         except Exception as e:
             return Response(
-                f"Error en realizar consulta {e}",
-                status=status.HTTP_400_BAD_REQUEST,
+                f"Error al realizar la consulta {e}",
+                status=status.HTTP_400_BAD_REQUEST
             )
 
 

@@ -2,6 +2,7 @@
 
 from decouple import config
 from django.core.cache import cache
+from django.http import Http404
 from experta import *
 from mongoengine import EmbeddedDocument
 from sklearn.metrics.pairwise import cosine_similarity
@@ -129,27 +130,19 @@ def motor_inferencia(consulta):
 
     if posible_results:
         return {"found": True, "resultado": posible_results}
-    else:
-        try:
-            keyword_no_mapping = KeyWordsNoMappingModel.objects(
-                keyword=consulta
-            ).first()
 
-            if not keyword_no_mapping:
-                keyword_no_mapping = KeyWordsNoMappingModel(
-                    keyword=consulta, conteo_consulta=1
-                )
-                keyword_no_mapping.save()
-            else:
-                keyword_no_mapping.conteo_consulta += 1
-                keyword_no_mapping.save()
-        except Exception as e:
-            return f"Error en la asignación de frase: {e}"
+    try:
+        keyword_no_mapping = KeyWordsNoMappingModel.objects(keyword=consulta).first()
 
-    return {
-        "found": False,
-        "message": "No se ha encontrado ningún resultado para esta búsqueda",
-        "url": "https://pam.quito.gob.ec/PAM/Inicio.aspx",
-        "contactos": "3952300",
-        "ext": "20127",
-    }
+        if not keyword_no_mapping:
+            keyword_no_mapping = KeyWordsNoMappingModel(
+                keyword=consulta, conteo_consulta=1
+            )
+            keyword_no_mapping.save()
+        else:
+            keyword_no_mapping.conteo_consulta += 1
+            keyword_no_mapping.save()
+
+    except Exception as e:
+        return {"error": f"Error en la asignación de frase: {e}", "status": 500}
+    raise Http404("No se ha encontrado ningún resultado para esta búsqueda")
