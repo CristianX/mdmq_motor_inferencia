@@ -95,7 +95,7 @@ class DataSetResultadoInferencia:
                     # else None,
                 },
             )
-            if inferencia_resultado.categoria == "informacion"
+            if inferencia_resultado.categoria == "tramite"
             else (
                 inferencia_resultado.rule.rule,
                 {
