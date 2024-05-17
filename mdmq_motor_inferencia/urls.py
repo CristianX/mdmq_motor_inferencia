@@ -14,16 +14,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path
 
 from motorInferencia.views import (
-    InferirConsulta,
-    Rule,
-    Keyword,
     Inferencia,
+    InferirConsulta,
+    Keyword,
     KeywordNoMapping,
     KeywordsByRule,
+    Rule,
     Tuplas,
 )
 
@@ -47,7 +48,9 @@ urlpatterns = [
         name="get-keywords-no-mapping",
     ),
     path(
-        "keywords/by-rule/<rule_id>", KeywordsByRule.as_view(), name="keywords_by_rule"
+        "keywords/by-rule/<str:rule_id>",
+        KeywordsByRule.as_view(),
+        name="keywords_by_rule",
     ),
     path("tuplas/", Tuplas.as_view(), name="tuplas"),
 ]
