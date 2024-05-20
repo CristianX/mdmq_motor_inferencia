@@ -13,6 +13,7 @@ from motorInferencia.models import (
     KeywordsModel,
     KeyWordsNoMappingModel,
     RuleModel,
+    CatalogoGrupoFormularioModel
 )
 
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
@@ -840,3 +841,75 @@ class Tuplas(APIView):
                 {"message": "Inferencias no existentes"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        
+
+class GrupoFormularios(APIView):
+    def post(self, request):
+        body = request.data
+
+        try:
+            grupo_formulario = CatalogoGrupoFormularioModel(
+                nombre_grupo             = body.get("nombre_grupo").upper(),
+                usuario_creacion         = body.get("usuario_creacion"),
+                dispositivo_creacion     = body.get("dispositivo_creacion"),
+                usuario_modificacion     = body.get("usuario_modificacion"),
+                dispositivo_modificacion = body.get("dispositivo_modificacion")
+            )
+
+            grupo_formulario.save()
+
+            return Response(
+                { "message": "Grupo de formulario creado exitosamente" },
+                status=status.HTTP_201_CREATED,
+            )
+        
+        except Exception as e:
+            return Response(
+                {"message": f"Error en la creación de un nuevo Grupo de Formularios: {e}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+    def get(self, request, *args, **kwargs):
+        if "id" in kwargs:
+            try:
+                grupo_formulario =  CatalogoGrupoFormularioModel.objects(
+                    id = ObjectId(kwargs.get("id"))
+                ).first()
+
+                if not grupo_formulario:
+                    return Response(
+                        {"message": "Grupo de Formularios no encontrado"},
+                        status=status.HTTP_404_NOT_FOUND
+                    )
+                
+                return Response(
+                    {
+                        "id"          : str(grupo_formulario.id),
+                        "nombre_grupo": grupo_formulario.nombre_grupo
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            except Exception as e:
+                return Response(
+                    {"message": f"Error al obtener el Grupo de Formularios: {e}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+        else:
+            try:
+                grupo_formularios = CatalogoGrupoFormularioModel.objects()
+                data = [
+                    {
+                        "id"          : str(grupo_formulario),
+                        "nombre_grupo": grupo_formulario.nombre_grupo
+                    }
+                    for grupo_formulario in grupo_formularios
+                ]
+                return Response(data, status=status.HTTP_200_OK)
+            
+            except Exception as e:
+                return Response(
+                    {"message": f"Error al obtener los Grupos de Formularios: {e}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )

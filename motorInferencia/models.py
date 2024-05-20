@@ -135,3 +135,30 @@ class KeyWordsNoMappingModel(Document):
                 "fecha_creacion": str(self.fecha_creacion),
             }
         )
+
+class CatalogoGrupoFormularioModel(Document):
+    """Colección de Catalogo de Grupo de Formulario"""
+
+    nombre_grupo = StringField(max_length=500, required=True, unique=True)
+    fecha_creacion = DateTimeField(default=datetime.utcnow)
+    usuario_creacion = StringField(
+        max_length=150, blank=False, null=False, required=True
+    )
+    dispositivo_creacion = StringField(
+        max_length=150, blank=False, null=False, required=True
+    )
+    fecha_modificacion = DateTimeField(default=datetime.utcnow)
+    usuario_modificacion = StringField(max_length=150)
+    dispositivo_modificacion = StringField(max_length=150)
+
+    meta = {
+        "indexes": [
+            "-fecha_modificacion",
+        ]
+    }
+
+    def save(self, *args, **kwargs):
+        self.fecha_modificacion = datetime.utcnow()
+        return super(CatalogoGrupoFormularioModel, self).save(*args, **kwargs)
+    
+CatalogoGrupoFormularioModel.ensure_indexes()

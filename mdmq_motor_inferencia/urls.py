@@ -26,6 +26,7 @@ from motorInferencia.views import (
     KeywordsByRule,
     Rule,
     Tuplas,
+    GrupoFormularios
 )
 
 urlpatterns = [
@@ -53,4 +54,6 @@ urlpatterns = [
         name="keywords_by_rule",
     ),
     path("tuplas/", Tuplas.as_view(), name="tuplas"),
+
+    path("grupo-formularios/", GrupoFormularios.as_view(), name="create_list_grupo_formulario")
 ]
