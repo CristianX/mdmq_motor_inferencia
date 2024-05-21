@@ -901,7 +901,7 @@ class GrupoFormularios(APIView):
                 grupo_formularios = CatalogoGrupoFormularioModel.objects()
                 data = [
                     {
-                        "id"          : str(grupo_formulario),
+                        "id"          : str(grupo_formulario.id),
                         "nombre_grupo": grupo_formulario.nombre_grupo
                     }
                     for grupo_formulario in grupo_formularios
