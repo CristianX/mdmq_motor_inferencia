@@ -6,8 +6,12 @@ import datetime
 import json
 
 from bson import ObjectId
+from bson.errors import InvalidId
 from decouple import config
 from django.core.cache import cache
+
+from motorInferencia.models import CatalogoGrupoFormularioModel
+from motorInferencia.serializers import CatalogoGrupoFormularioSerializer
 
 # pylint: disable=no-member
 
@@ -19,6 +23,25 @@ class DataSetResultadoInferencia:
 
     _instance_key = "dataset_resultado_inferencia"
     _last_update_key = "last_update_dataset_resultado_inferencia"
+
+    @staticmethod
+    def obtener_grupo_formulario(grupo_formulario):
+
+        try:
+            grupo_formulario_obj = (
+                CatalogoGrupoFormularioModel.objects(id=ObjectId(grupo_formulario))
+                .only("nombre_grupo")
+                .first()
+            )
+
+            if grupo_formulario_obj:
+                serializer = CatalogoGrupoFormularioSerializer(grupo_formulario_obj)
+                return serializer.data
+            else:
+                return None
+
+        except InvalidId:
+            return "id inválido"
 
     @classmethod
     def get_instance(cls):
@@ -139,7 +162,9 @@ class DataSetResultadoInferencia:
                                     "id": str(ObjectId(inferencia_resultado.id)),
                                     "categoria": inferencia_resultado.categoria,
                                     "nombre_formulario": inferencia_resultado.nombre_formulario,
-                                    "grupo_formulario": inferencia_resultado.grupo_formulario,
+                                    "grupo_formulario": DataSetResultadoInferencia.obtener_grupo_formulario(
+                                        inferencia_resultado.grupo_formulario
+                                    ),
                                     "url_formulario": inferencia_resultado.url_formulario,
                                     "estado": inferencia_resultado.estado,
                                 },

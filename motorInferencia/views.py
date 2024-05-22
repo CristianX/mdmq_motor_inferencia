@@ -9,12 +9,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from motorInferencia.models import (
+    CatalogoGrupoFormularioModel,
     InferenciaModel,
     KeywordsModel,
     KeyWordsNoMappingModel,
     RuleModel,
-    CatalogoGrupoFormularioModel
 )
+from motorInferencia.serializers import CatalogoGrupoFormularioSerializer
 
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
@@ -56,12 +57,11 @@ class InferirConsulta(APIView):
                     "contactos": "3952300",
                     "ext": "20127",
                 },
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_404_NOT_FOUND,
             )
         except Exception as e:
             return Response(
-                f"Error al realizar la consulta {e}",
-                status=status.HTTP_400_BAD_REQUEST
+                f"Error al realizar la consulta {e}", status=status.HTTP_400_BAD_REQUEST
             )
 
 
@@ -841,75 +841,50 @@ class Tuplas(APIView):
                 {"message": "Inferencias no existentes"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        
+
 
 class GrupoFormularios(APIView):
     def post(self, request):
-        body = request.data
+        serializer = CatalogoGrupoFormularioSerializer(data=request.data)
 
-        try:
-            grupo_formulario = CatalogoGrupoFormularioModel(
-                nombre_grupo             = body.get("nombre_grupo").upper(),
-                usuario_creacion         = body.get("usuario_creacion"),
-                dispositivo_creacion     = body.get("dispositivo_creacion"),
-                usuario_modificacion     = body.get("usuario_modificacion"),
-                dispositivo_modificacion = body.get("dispositivo_modificacion")
-            )
-
-            grupo_formulario.save()
-
+        if serializer.is_valid():
+            serializer.save()
             return Response(
-                { "message": "Grupo de formulario creado exitosamente" },
+                {"message": "Grupo de formulario creado exitosamente"},
                 status=status.HTTP_201_CREATED,
             )
-        
-        except Exception as e:
-            return Response(
-                {"message": f"Error en la creación de un nuevo Grupo de Formularios: {e}"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def get(self, request, *args, **kwargs):
         if "id" in kwargs:
             try:
-                grupo_formulario =  CatalogoGrupoFormularioModel.objects(
-                    id = ObjectId(kwargs.get("id"))
-                ).first()
-
-                if not grupo_formulario:
-                    return Response(
-                        {"message": "Grupo de Formularios no encontrado"},
-                        status=status.HTTP_404_NOT_FOUND
-                    )
-                
-                return Response(
-                    {
-                        "id"          : str(grupo_formulario.id),
-                        "nombre_grupo": grupo_formulario.nombre_grupo
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
+                grupo_formulario = CatalogoGrupoFormularioModel.objects.get(
+                    id=ObjectId(kwargs.get("id"))
                 )
-            
+                serializer = CatalogoGrupoFormularioSerializer(grupo_formulario)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
+            except CatalogoGrupoFormularioModel.DoesNotExist:
+                return Response(
+                    {"message": "Grupo de Formularios no encontrado"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
             except Exception as e:
                 return Response(
                     {"message": f"Error al obtener el Grupo de Formularios: {e}"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-            
+
         else:
             try:
-                grupo_formularios = CatalogoGrupoFormularioModel.objects()
-                data = [
-                    {
-                        "id"          : str(grupo_formulario.id),
-                        "nombre_grupo": grupo_formulario.nombre_grupo
-                    }
-                    for grupo_formulario in grupo_formularios
-                ]
-                return Response(data, status=status.HTTP_200_OK)
-            
+                grupo_formularios = CatalogoGrupoFormularioModel.objects.all()
+                serializer = CatalogoGrupoFormularioSerializer(
+                    grupo_formularios, many=True
+                )
+                return Response(serializer.data, status=status.HTTP_200_OK)
+
             except Exception as e:
                 return Response(
                     {"message": f"Error al obtener los Grupos de Formularios: {e}"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
