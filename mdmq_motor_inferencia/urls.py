@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import path
 
 from motorInferencia.views import (
+    GrupoFormularios,
     Inferencia,
     InferirConsulta,
     Keyword,
@@ -26,7 +27,6 @@ from motorInferencia.views import (
     KeywordsByRule,
     Rule,
     Tuplas,
-    GrupoFormularios
 )
 
 urlpatterns = [
@@ -54,6 +54,14 @@ urlpatterns = [
         name="keywords_by_rule",
     ),
     path("tuplas/", Tuplas.as_view(), name="tuplas"),
-
-    path("grupo-formularios/", GrupoFormularios.as_view(), name="create_list_grupo_formulario")
+    path(
+        "grupo-formularios/",
+        GrupoFormularios.as_view(),
+        name="create_list_grupo_formulario",
+    ),
+    path(
+        "grupo-formularios/<str:id>",
+        GrupoFormularios.as_view(),
+        name="list_grupo_formulario_id",
+    ),
 ]
