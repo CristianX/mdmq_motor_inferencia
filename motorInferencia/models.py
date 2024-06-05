@@ -1,7 +1,7 @@
 """Modelos de BDD MongoDB"""
 
 # from django.db import models
-from datetime import datetime
+from datetime import datetime, timezone
 
 # pylint: disable=no-name-in-module
 # pylint: disable=import-error
@@ -105,7 +105,7 @@ class InferenciaModel(DynamicDocument):
     dispositivo_creacion = StringField(
         max_length=150, blank=False, null=False, required=True
     )
-    fecha_modificacion = DateTimeField(default=datetime.utcnow)
+    fecha_modificacion = DateTimeField(default=datetime.now(timezone.utc))
     usuario_modificacion = StringField(max_length=150)
     dispositivo_modificacion = StringField(max_length=150)
 
@@ -136,6 +136,7 @@ class KeyWordsNoMappingModel(Document):
             }
         )
 
+
 class CatalogoGrupoFormularioModel(Document):
     """Colección de Catalogo de Grupo de Formulario"""
 
@@ -160,5 +161,6 @@ class CatalogoGrupoFormularioModel(Document):
     def save(self, *args, **kwargs):
         self.fecha_modificacion = datetime.utcnow()
         return super(CatalogoGrupoFormularioModel, self).save(*args, **kwargs)
-    
+
+
 CatalogoGrupoFormularioModel.ensure_indexes()

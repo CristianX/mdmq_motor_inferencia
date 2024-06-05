@@ -71,6 +71,9 @@ def init_motor():
 
 
 def update_data():
+
+    print("Entrando al update")
+
     global engine, data_inferencia, keywords
     keywords = dict(DataSetMotorInferencia.refresh_dataset())
 

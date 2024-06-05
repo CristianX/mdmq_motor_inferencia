@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timezone
 
 from bson import ObjectId
 from decouple import config
@@ -15,7 +16,10 @@ from motorInferencia.models import (
     KeyWordsNoMappingModel,
     RuleModel,
 )
-from motorInferencia.serializers import CatalogoGrupoFormularioSerializer
+from motorInferencia.serializers import (
+    CatalogoGrupoFormularioSerializer,
+    InferenciaSerializer,
+)
 
 from .utils.data_resultado_inferencia import DataSetResultadoInferencia
 from .utils.dataset_motor_inferencia import DataSetMotorInferencia
@@ -626,70 +630,36 @@ class Inferencia(APIView):
             )
 
     def put(self, request, *args, **kwargs):
-        body = request.data
-
-        if "id" in kwargs:
-            try:
-                inferencia = InferenciaModel.objects(
-                    id=ObjectId(kwargs.get("id"))
-                ).first()
-                if not inferencia:
-                    return Response(
-                        {"message": "Inferencia no encontrada"},
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
-
-                for key, value in body.items():
-                    if key == "rule":
-                        continue
-                    if hasattr(inferencia, key):
-                        setattr(inferencia, key, value)
-
-                inferencia_dict = inferencia.to_mongo().to_dict()
-
-                print("Inferencia a actualizar", inferencia_dict)
-
-                # cmi_service.envio_data(
-                #     {
-                #         "SISTEMA": "MOTOR_INFERENCIA",
-                #         "tipo_peticion": "PUT",
-                #         "coleccion": "Inferencias",
-                #         "regla": str(inferencia_dict.get("rule")),
-                #         "estado": inferencia_dict.get("estado", None),
-                #         "categoria": inferencia_dict.get("categoria", None),
-                #         "fecha_creacion": str(inferencia_dict.get("fecha_creacion")),
-                #         "usuario_creacion": inferencia_dict.get("usuario_creacion"),
-                #         "dispositivo_creacion": inferencia_dict.get(
-                #             "dispositivo_creacion"
-                #         ),
-                #         "fecha_modificacion": str(
-                #             inferencia_dict.get("fecha_modificacion")
-                #         ),
-                #         "nombre_tramite": inferencia_dict.get("nombre_tramite"),
-                #         "dependencia_tramite": inferencia_dict.get(
-                #             "dependencia_tramite"
-                #         ),
-                #         "url_stl": inferencia_dict.get("url_stl", None),
-                #     }
-                # )
-
-                inferencia.save()
-                return Response(
-                    {"message": "Inferencia actualizada correctamente"},
-                    status=status.HTTP_200_OK,
-                )
-
-            except Exception as e:
-                return Response(
-                    {"message": f"Error al actualizar la inferencia {e}"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-        else:
+        if "id" not in kwargs:
             return Response(
                 {"message": "ID de la inferencia no proporcionado"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        try:
+            inferencia = InferenciaModel.objects.get(id=ObjectId(kwargs.get("id")))
+        except InferenciaModel.DoesNotExist:
+            return Response(
+                {"message": "Inferencia no encontrada"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        data = request.data
+        data["fecha_modificacion"] = datetime.now(timezone.utc)
+
+        # Actualiza todos los campos dinámicamente
+        for key, value in data.items():
+            if key in inferencia._fields:
+                setattr(inferencia, key, value)
+            else:
+                inferencia[key] = value
+
+        inferencia.save()
+
+        return Response(
+            {"message": "Inferencia actualizada correctamente"},
+            status=status.HTTP_200_OK,
+        )
 
     def delete(self, request, *args, **kwargs):
         if "id" in kwargs:
@@ -888,3 +858,59 @@ class GrupoFormularios(APIView):
                     {"message": f"Error al obtener los Grupos de Formularios: {e}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+
+    def put(self, request, *args, **kwargs):
+        # nombre_grupo_nuevo = request.data.get("nombre_grupo")
+        if "id" not in kwargs:
+            return Response(
+                {"message": "Falta el ID del Grupo de Formularios"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            grupo_formulario = CatalogoGrupoFormularioModel.objects.get(
+                id=ObjectId(kwargs.get("id"))
+            )
+
+            # nombre_grupo_antiguo = grupo_formulario.nombre_grupo
+
+            serializer = CatalogoGrupoFormularioSerializer(
+                grupo_formulario, data=request.data, partial=True
+            )
+
+            if serializer.is_valid():
+                serializer.save()
+                # Actualizar la caché
+                # nombre_grupo_actualizado = (
+                #     DataSetResultadoInferencia.obtener_grupo_formulario(
+                #         grupo_formulario.id
+                #     )
+                # )
+
+                # if nombre_grupo_actualizado:
+                #     print(
+                #         f"Actualizando caché con nombre de grupo: {nombre_grupo_actualizado}"
+                #     )
+                #     DataSetResultadoInferencia.update_cache_grupo_formulario(
+                #         nombre_grupo_antiguo, nombre_grupo_actualizado
+                #     )
+                # else:
+                #     print("No se proporcionó un nombre de grupo actualizado")
+                return Response(
+                    {"message": "Grupo de Formularios actualizado exitosamente"},
+                    status=status.HTTP_200_OK,
+                )
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except CatalogoGrupoFormularioModel.DoesNotExist:
+            return Response(
+                {"message": "Grupo de Formularios no encontrado"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception as e:
+            print(f"Error: {e}")
+            return Response(
+                {"message": f"Error al actualizar el Grupo de Formularios: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
