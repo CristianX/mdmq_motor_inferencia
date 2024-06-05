@@ -896,6 +896,18 @@ class GrupoFormularios(APIView):
                 #     )
                 # else:
                 #     print("No se proporcionó un nombre de grupo actualizado")
+
+                # Actualizar la fecha de modificación de los registros relacionados en InferenciaModel
+                inferencias = InferenciaModel.objects(
+                    grupo_formulario=ObjectId(kwargs.get("id"))
+                )
+
+                print("Inferencias encontradas: ", inferencias)
+
+                for inferencia in inferencias:
+                    inferencia.fecha_modificacion = datetime.now(timezone.utc)
+                    inferencia.save()
+
                 return Response(
                     {"message": "Grupo de Formularios actualizado exitosamente"},
                     status=status.HTTP_200_OK,
